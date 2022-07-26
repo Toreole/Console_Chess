@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <vector>
 #include "ChessPiece.h"
 #include <Windows.h> //required to get the handle of the console window.
 
@@ -13,6 +14,7 @@ namespace ConsoleChess
 		//should functionally be a 2D "array" of sorts.
 		std::array<std::array<ChessPiece*, 8>, 8> board;
 		HANDLE console_handle;
+		std::vector<ChessPiece*> takenPieces;
 
 	public:
 		//draw the board in the console.
@@ -23,5 +25,8 @@ namespace ConsoleChess
 
 		//initialize the board.
 		void Initialize();
+
+		//try to make a specific move.
+		bool TryMakeMove(int ax, int ay, int bx, int by, int player);
 	};
 }
