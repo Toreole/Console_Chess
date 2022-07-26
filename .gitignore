@@ -33,3 +33,6 @@
 
 #ignore vs folder
 .vs
+
+#also ignore the binary file folders
+**/x64
