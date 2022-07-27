@@ -70,5 +70,11 @@ bool Pawn::CanMoveTo(int tx, int ty, ChessPiece* otherPiece)
 			return false;
 		}
 	}
+	//other field is empty
+	if (deltaY > 0)
+	{
+		std::cout << "Reason: cant walk diagonally for no reason." << std::endl;
+		return false;
+	}
 	return true;
 }
