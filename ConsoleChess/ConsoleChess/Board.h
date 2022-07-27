@@ -2,8 +2,8 @@
 
 #include <array>
 #include <vector>
-#include "ChessPiece.h"
 #include <Windows.h> //required to get the handle of the console window.
+#include "ChessPiece.h"
 
 namespace ConsoleChess
 {
@@ -28,5 +28,7 @@ namespace ConsoleChess
 
 		//try to make a specific move.
 		bool TryMakeMove(int ax, int ay, int bx, int by, int player);
+
+		ChessPiece* GetPieceAt(int x, int y){ return board[x][y]; }
 	};
 }

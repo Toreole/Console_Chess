@@ -48,7 +48,7 @@ void Board::Render()
 	
 	const std::string letters = "abcdefgh";
 
-	std::cout << "------------------";
+	std::cout << "------------------" << std::endl;
 
 	for (int i = 0; i <= 7; ++i)
 		std::cout << letters[i] << ' ';
@@ -103,13 +103,23 @@ bool Board::TryMakeMove(int ax, int ay, int bx, int by, int player)
 	ChessPiece* piece = board[ax][ay];
 	//validate that a non-empty field was selected.
 	if (piece == nullptr)
+	{
+		std::cout << "Selected Piece was null." << std::endl;
 		return false;
+	}
+	std::cout << "Selected Piece: " << piece->GetCharacter() << std::endl;
 	//validate that this piece belongs to the player
 	if (player != piece->color)
+	{
+		std::cout << "Selected Piece belonged to other player." << std::endl;
 		return false;
+	}
 	//validate that the piece can move to that position
-	if (!piece->CanMoveTo(bx, by))
+	if (!piece->CanMoveTo(bx, by, GetPieceAt(bx, by)))
+	{
+		std::cout << "Selected Piece cant move to target position." << std::endl;
 		return false;
+	}
 	//Move the piece. automatically "take" other pieces in the spot
 	ChessPiece* other = board[bx][by];
 	if (other != nullptr)
@@ -119,6 +129,9 @@ bool Board::TryMakeMove(int ax, int ay, int bx, int by, int player)
 	}
 	//place the moved piece in the second spot.
 	board[bx][by] = piece;
+	//update the position of the piece itself
+	piece->row = bx;
+	piece->column = by;
 
 	//clear the spot where it was before
 	board[ax][ay] = nullptr;

@@ -1,4 +1,5 @@
 #pragma once
+
 namespace ConsoleChess
 {
 	class ChessPiece
@@ -16,6 +17,6 @@ namespace ConsoleChess
 		virtual char GetCharacter() { return ' '; }
 
 		//can this piece move to the targetted position?
-		virtual bool CanMoveTo(int tr, int tc) { return false; }
+		virtual bool CanMoveTo(int tr, int tc, ChessPiece* otherPiece) { return false; }
 	};
 }
