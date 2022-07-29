@@ -4,13 +4,13 @@
 
 using namespace ConsoleChess;
 
-bool Pawn::CanMoveTo(int tx, int ty, ChessPiece* otherPiece)
+bool Pawn::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* board)
 {
 	//vertical movement only for now.
 	//validate the direction.
 	int deltaY = ty - column;
 	int deltaX = tx - row;
-	
+
 	if (deltaX == 0)
 	{
 		std::cout << "Reason: cant move sideways" << std::endl;
@@ -28,6 +28,12 @@ bool Pawn::CanMoveTo(int tx, int ty, ChessPiece* otherPiece)
 	//check absolute deltaX.
 	if (std::abs(deltaX) == 2)
 	{
+		int midX = row + (deltaX / 2);
+		if (board->at(midX).at(column) != nullptr)
+		{
+			std::cout << "There was a piece blocking the path." << std::endl;
+			return false;
+		}
 		//double move only allowed if still on the starting position.
 		if (row != startRow || column != startColumn)
 		{
@@ -54,7 +60,7 @@ bool Pawn::CanMoveTo(int tx, int ty, ChessPiece* otherPiece)
 		return false;
 	}
 	//check the field.
-	
+	ChessPiece* otherPiece = board->at(tx).at(ty);
 	if (otherPiece != nullptr)
 	{
 		//can never take a piece of the same color.

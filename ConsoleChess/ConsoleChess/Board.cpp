@@ -115,7 +115,7 @@ bool Board::TryMakeMove(int ax, int ay, int bx, int by, int player)
 		return false;
 	}
 	//validate that the piece can move to that position
-	if (!piece->CanMoveTo(bx, by, GetPieceAt(bx, by)))
+	if (!piece->CanMoveTo(bx, by, &board))
 	{
 		std::cout << "Selected Piece cant move to target position." << std::endl;
 		return false;

@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 
 namespace ConsoleChess
 {
@@ -17,6 +18,6 @@ namespace ConsoleChess
 		virtual char GetCharacter() { return ' '; }
 
 		//can this piece move to the targetted position?
-		virtual bool CanMoveTo(int tr, int tc, ChessPiece* otherPiece) { return false; }
+		virtual bool CanMoveTo(int tr, int tc, std::array<std::array<ChessPiece*, 8>, 8>* board) { return false; }
 	};
 }

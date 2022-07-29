@@ -10,6 +10,6 @@ namespace ConsoleChess
         Pawn() { row = 0; column = 0; color = 0; }
         char GetCharacter() { return 'P'; }
 
-        bool CanMoveTo(int tx, int ty, ChessPiece* otherPiece);
+        bool CanMoveTo(int tr, int tc, std::array<std::array<ChessPiece*, 8>, 8>* board);
     };
 }
