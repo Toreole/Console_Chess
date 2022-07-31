@@ -4,7 +4,6 @@
 
 bool ConsoleChess::Bishop::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* board)
 {
-
     int dx = tx - row;
     int dy = ty - column;
 
