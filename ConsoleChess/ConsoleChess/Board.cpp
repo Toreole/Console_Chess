@@ -7,6 +7,9 @@ using namespace ConsoleChess;
 
 static int color_blue = 11;
 static int color_green = 10;
+static int color_dark_blue = 1;
+static int color_dark_green = 2;
+
 static int color_white = 7;
 
 void Board::Initialize()
@@ -46,13 +49,15 @@ void Board::Render()
 {
 	int color = true ? color_blue : color_green;
 	
-	const std::string letters = "abcdefgh";
+	const std::string letters = "a b c d e f g h ";
 
 	std::cout << "------------------" << std::endl;
 
-	for (int i = 0; i <= 7; ++i)
-		std::cout << letters[i] << ' ';
-	std::cout << std::endl;
+	//for (int i = 0; i <= 7; ++i)
+	//	std::cout << letters[i] << ' ';
+	//std::cout << std::endl;
+	//instead of pushing each letter to cout individually, just do the entire string at once, with the new added spaces.
+	std::cout << letters << std::endl;
 
 	//draw all the things.
 	for (int x = 0; x <= 7; ++x)
@@ -62,7 +67,9 @@ void Board::Render()
 			//skip nulls
 			if (board[x][y] == nullptr)
 			{
-				std::cout << "  ";
+				//use the darker colours for empty tiles because they only exist to better orientate yourself on the board.
+				SetConsoleTextAttribute(console_handle, (x + y) % 2 == 1 ? color_dark_green : color_dark_blue);
+				std::cout << "\u00FE "; //print a square character.
 				continue;
 			}
 			//set the color, then draw the character.
@@ -96,6 +103,8 @@ void Board::Reset()
 		ChessPiece* piece = takenPieces.at(i);
 		board[piece->startRow][piece->startColumn] = piece;
 	}
+	//clear the vector of taken pieces
+	takenPieces.clear();
 }
 
 bool Board::TryMakeMove(int ax, int ay, int bx, int by, int player)
