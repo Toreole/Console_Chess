@@ -20,7 +20,7 @@ bool ConsoleChess::Queen::CanMoveTo(int tx, int ty, std::array<std::array<ChessP
             return false;
 
         //the final position.
-        ChessPiece* other = board->at(tx).at(yy);
+        ChessPiece* other = board->at(tx).at(ty);
         if (other != nullptr)
         {
             std::cout << "cant take ally" << std::endl;

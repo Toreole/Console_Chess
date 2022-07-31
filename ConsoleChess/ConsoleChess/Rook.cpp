@@ -17,15 +17,12 @@ bool ConsoleChess::Rook::CanMoveTo(int tx, int ty, std::array<std::array<ChessPi
         int xDir = dx > 0 ? 1 : dx < 0 ? -1 : 0;
         int yDir = dy > 0 ? 1 : dy < 0 ? -1 : 0;
 
-        int xx = row + xDir;
-        int yy = column + yDir;
-
         //all positions between the start and the destination.
         if (!HasLineOfSightTo(tx, ty, xDir, yDir, board))
             return false;
 
         //the final position.
-        ChessPiece* other = board->at(tx).at(yy);
+        ChessPiece* other = board->at(tx).at(ty);
         if (other != nullptr)
         {
             std::cout << "cant take ally" << std::endl;
