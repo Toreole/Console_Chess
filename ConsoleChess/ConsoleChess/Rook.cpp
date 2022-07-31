@@ -21,15 +21,9 @@ bool ConsoleChess::Rook::CanMoveTo(int tx, int ty, std::array<std::array<ChessPi
         int yy = column + yDir;
 
         //all positions between the start and the destination.
-        for (; xx != tx || yy != ty; xx += xDir, yy += yDir)
-        {
-            ChessPiece* other = board->at(xx).at(yy);
-            if (other != nullptr)
-            {
-                std::cout << "piece in the way." << std::endl;
-                return false;
-            }
-        }
+        if (!HasLineOfSightTo(tx, ty, xDir, yDir, board))
+            return false;
+
         //the final position.
         ChessPiece* other = board->at(tx).at(yy);
         if (other != nullptr)

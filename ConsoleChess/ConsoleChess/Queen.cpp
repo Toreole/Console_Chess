@@ -16,19 +16,9 @@ bool ConsoleChess::Queen::CanMoveTo(int tx, int ty, std::array<std::array<ChessP
         int xDir = dx > 0 ? 1 : -1;
         int yDir = dy > 0 ? 1 : -1;
 
-        int xx = row + xDir;
-        int yy = column + yDir;
+        if (!HasLineOfSightTo(tx, ty, xDir, yDir, board))
+            return false;
 
-        //all positions between the start and the destination.
-        for (; xx != tx; xx += xDir, yy += yDir)
-        {
-            ChessPiece* other = board->at(xx).at(yy);
-            if (other != nullptr)
-            {
-                std::cout << "piece in the way." << std::endl;
-                return false;
-            }
-        }
         //the final position.
         ChessPiece* other = board->at(tx).at(yy);
         if (other != nullptr)
@@ -47,16 +37,9 @@ bool ConsoleChess::Queen::CanMoveTo(int tx, int ty, std::array<std::array<ChessP
         int xx = row + xDir;
         int yy = column + yDir;
 
-        //all positions between the start and the destination.
-        for (; xx != tx || yy != ty; xx += xDir, yy += yDir)
-        {
-            ChessPiece* other = board->at(xx).at(yy);
-            if (other != nullptr)
-            {
-                std::cout << "piece in the way." << std::endl;
-                return false;
-            }
-        }
+        if (!HasLineOfSightTo(tx, ty, xDir, yDir, board))
+            return false;
+
         //the final position.
         ChessPiece* other = board->at(tx).at(yy);
         if (other != nullptr)
