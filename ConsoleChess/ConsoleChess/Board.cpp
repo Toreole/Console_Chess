@@ -1,5 +1,4 @@
 #include "Board.h"
-#include "ChessPieces.h"
 #include <iostream>
 #include <Windows.h>
 
@@ -23,7 +22,7 @@ void Board::Initialize()
 	board[0][1] = new Knight(0, 1, 0);
 	board[0][2] = new Bishop(0, 2, 0);
 	board[0][3] = new Queen(0, 3, 0);
-	board[0][4] = new King(0, 4, 0);
+	board[0][4] = playerA_King = new King(0, 4, 0);
 	board[0][5] = new Bishop(0, 5, 0);
 	board[0][6] = new Knight(0, 6, 0);
 	board[0][7] = new Rook(0, 7, 0);
@@ -36,7 +35,7 @@ void Board::Initialize()
 	board[7][1] = new Knight(7, 1, 1);
 	board[7][2] = new Bishop(7, 2, 1);
 	board[7][3] = new Queen(7, 3, 1);
-	board[7][4] = new King(7, 4, 1);
+	board[7][4] = playerB_King = new King(7, 4, 1);
 	board[7][5] = new Bishop(7, 5, 1);
 	board[7][6] = new Knight(7, 6, 1);
 	board[7][7] = new Rook(7, 7, 1);
@@ -52,7 +51,7 @@ void Board::Render()
 	const std::string letters = "a b c d e f g h ";
 
 	std::cout << "------------------" << std::endl;
-
+	
 	//for (int i = 0; i <= 7; ++i)
 	//	std::cout << letters[i] << ' ';
 	//std::cout << std::endl;
@@ -69,7 +68,7 @@ void Board::Render()
 			{
 				//use the darker colours for empty tiles because they only exist to better orientate yourself on the board.
 				SetConsoleTextAttribute(console_handle, (x + y) % 2 == 1 ? color_dark_green : color_dark_blue);
-				std::cout << "\u00FE "; //print a square character.
+				std::cout << "\u00FE "; //print a square character. -- this assumes codepage 850!
 				continue;
 			}
 			//set the color, then draw the character.
@@ -79,7 +78,6 @@ void Board::Render()
 		SetConsoleTextAttribute(console_handle, color_white);
 		std::cout << (x+1) << std::endl;
 	}
-
 }
 
 void Board::Reset()
@@ -129,20 +127,47 @@ bool Board::TryMakeMove(int ax, int ay, int bx, int by, int player)
 		std::cout << "Selected Piece cant move to target position." << std::endl;
 		return false;
 	}
-	//Move the piece. automatically "take" other pieces in the spot
+
+	//temporarily move the pieces.
 	ChessPiece* other = board[bx][by];
+	//place the moved piece in the second spot.
+	board[bx][by] = piece;
+	//clear the spot where it was before
+	board[ax][ay] = nullptr;
+	//update the position of the piece itself
+	piece->row = bx;
+	piece->column = by;
+
+	//get the current players king piece.
+	ChessPiece* currentPlayersKing = player == 1 ? playerB_King : playerA_King;
+	//iterate through all pieces.
+	for (int x = 0; x < 8; ++x)
+	{
+		for (int y = 0; y < 8; ++y)
+		{
+			ChessPiece* ch = board[x][y];
+			//only check for the opponents pieces.
+			if (ch != nullptr && ch->color != player)
+			{
+				//can they move to the kings position aka, is the king now in check?
+				if (ch->CanMoveTo(currentPlayersKing->row, currentPlayersKing->column, &board))
+				{
+					//undo the move previously made.
+					board[bx][by] = other;
+					board[ax][ay] = piece; 
+					piece->row = ax;
+					piece->column = ay;
+					std::cout << "Move would cause check on yourself." << std::endl;
+					return false;
+				}
+			}
+		}
+	}
+
 	if (other != nullptr)
 	{
 		//put the piece in the taken vector.
 		takenPieces.push_back(other);
 	}
-	//place the moved piece in the second spot.
-	board[bx][by] = piece;
-	//update the position of the piece itself
-	piece->row = bx;
-	piece->column = by;
-
-	//clear the spot where it was before
-	board[ax][ay] = nullptr;
 	return true;
 }

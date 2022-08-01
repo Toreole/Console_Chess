@@ -3,7 +3,7 @@
 #include <array>
 #include <vector>
 #include <Windows.h> //required to get the handle of the console window.
-#include "ChessPiece.h"
+#include "ChessPieces.h"
 
 namespace ConsoleChess
 {
@@ -15,6 +15,9 @@ namespace ConsoleChess
 		std::array<std::array<ChessPiece*, 8>, 8> board;
 		HANDLE console_handle;
 		std::vector<ChessPiece*> takenPieces;
+
+		King* playerA_King;
+		King* playerB_King;
 
 	public:
 		//draw the board in the console.
