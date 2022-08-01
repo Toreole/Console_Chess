@@ -63,9 +63,18 @@ int main()
         std::cout << "Make your move: " << std::endl;
         //get input
         
-        std::cin >> a >> b;
-        input = a + " " + b;
+        std::cin >> a;
 
+        //reset
+        if (a == "RESET")
+        {
+            board->Reset();
+            player = 0;
+            continue;
+        }
+        std::cin >> b;
+
+        input = a + " " + b;
         if (input.size() < 5)
         {
             std::cout << "INPUT TOO SHORT, WAS SIZE: " << input.size() << std::endl;

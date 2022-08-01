@@ -100,6 +100,8 @@ void Board::Reset()
 	{
 		ChessPiece* piece = takenPieces.at(i);
 		board[piece->startRow][piece->startColumn] = piece;
+		piece->row = piece->startRow;
+		piece->column = piece->startColumn;
 	}
 	//clear the vector of taken pieces
 	takenPieces.clear();
