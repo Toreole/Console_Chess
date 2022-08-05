@@ -1,7 +1,7 @@
 #include "King.h"
 #include <cmath>
 
-bool ConsoleChess::King::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* board)
+bool ConsoleChess::King::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* board, bool printIssues)
 {
     int deltaX = tx - row;
     int deltaY = ty - column;

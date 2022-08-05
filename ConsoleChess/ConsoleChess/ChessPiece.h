@@ -24,7 +24,9 @@ namespace ConsoleChess
 		virtual char GetCharacter() { return ' '; }
 
 		//can this piece move to the targetted position?
-		virtual bool CanMoveTo(int tr, int tc, std::array<std::array<ChessPiece*, 8>, 8>* board) { return false; }
+		virtual bool CanMoveTo(int tr, int tc, std::array<std::array<ChessPiece*, 8>, 8>* board, bool printIssues = true) { return false; }
 
 	};
 }
+
+#define PRINTIF(ln, prb) if(prb) std::cout << ln << std::endl;

@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 
-bool ConsoleChess::Bishop::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* board)
+bool ConsoleChess::Bishop::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* board, bool printIssues)
 {
     int dx = tx - row;
     int dy = ty - column;
@@ -22,14 +22,14 @@ bool ConsoleChess::Bishop::CanMoveTo(int tx, int ty, std::array<std::array<Chess
         ChessPiece* other = board->at(tx).at(ty);
         if (other != nullptr)
         {
-            std::cout << "cant take ally" << std::endl;
+            PRINTIF("cant take ally", printIssues);
             return other->color != color;
         }
         return true;
     }
     else
     {
-        std::cout << "not a diagonal move: " << adx << " | " << ady << std::endl;
+        PRINTIF("not a diagonal move", printIssues);
     }
     return false;
 }

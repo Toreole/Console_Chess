@@ -1,7 +1,7 @@
 #include "Knight.h"
 #include <cmath>
 
-bool ConsoleChess::Knight::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* board)
+bool ConsoleChess::Knight::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* board, bool printIssues)
 {
     int dx = tx - row;
     int dy = ty - column;

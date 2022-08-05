@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 
-bool ConsoleChess::Queen::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* board)
+bool ConsoleChess::Queen::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* board, bool printIssues)
 {
     int dx = tx - row;
     int dy = ty - column;
@@ -23,7 +23,7 @@ bool ConsoleChess::Queen::CanMoveTo(int tx, int ty, std::array<std::array<ChessP
         ChessPiece* other = board->at(tx).at(ty);
         if (other != nullptr)
         {
-            std::cout << "cant take ally" << std::endl;
+            PRINTIF("cant take ally", color == other->color && printIssues);
             return other->color != color;
         }
         return true;
@@ -41,14 +41,14 @@ bool ConsoleChess::Queen::CanMoveTo(int tx, int ty, std::array<std::array<ChessP
         ChessPiece* other = board->at(tx).at(ty);
         if (other != nullptr)
         {
-            std::cout << "cant take ally" << std::endl;
+            PRINTIF("cant take ally", color == other->color && printIssues);
             return other->color != color;
         }
         return true;
     }
     else
     {
-        std::cout << "not a valid move for queen: " << adx << " | " << ady << std::endl;
+        PRINTIF("not a valid move for queen", printIssues);
     }
     return false;
 }

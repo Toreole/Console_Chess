@@ -152,7 +152,7 @@ bool Board::TryMakeMove(int ax, int ay, int bx, int by, int player)
 			if (ch != nullptr && ch->color != player)
 			{
 				//can they move to the kings position aka, is the king now in check?
-				if (ch->CanMoveTo(currentPlayersKing->row, currentPlayersKing->column, &board))
+				if (ch->CanMoveTo(currentPlayersKing->row, currentPlayersKing->column, &board, false)) //disable printing issues for the check.
 				{
 					//undo the move previously made.
 					board[bx][by] = other;

@@ -4,7 +4,7 @@
 
 using namespace ConsoleChess;
 
-bool Pawn::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* board)
+bool Pawn::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* board, bool printIssues)
 {
 	//vertical movement only for now.
 	//validate the direction.
@@ -13,7 +13,7 @@ bool Pawn::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* 
 
 	if (deltaX == 0)
 	{
-		std::cout << "Reason: cant move sideways" << std::endl;
+		PRINTIF("Reason: cant move sideways", printIssues);
 		return false;
 	}
 
@@ -21,7 +21,7 @@ bool Pawn::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* 
 	bool legalX = (color == 0) ? deltaX > 0 : deltaX < 0;
 	if (!legalX)
 	{
-		std::cout << "Reason: wrong vertical direction" << std::endl;
+		PRINTIF("Reason: wrong vertical direction", printIssues);
 		return false;
 	}
 
@@ -31,32 +31,32 @@ bool Pawn::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* 
 		int midX = row + (deltaX / 2);
 		if (board->at(midX).at(column) != nullptr)
 		{
-			std::cout << "There was a piece blocking the path." << std::endl;
+			PRINTIF("There was a piece blocking the path.", printIssues);
 			return false;
 		}
 		//double move only allowed if still on the starting position.
 		if (row != startRow || column != startColumn)
 		{
-			std::cout << "Reason: cant double when not in starting position." << std::endl;
+			PRINTIF("Reason: cant double when not in starting position.", printIssues);
 			return false;
 		}
 		//diagonal and 2 front is never allowed.
 		if (deltaY != 0)
 		{
-			std::cout << "Reason: cant move sideways." << std::endl;
+			PRINTIF("Reason: cant move sideways.", printIssues);
 			return false;
 		}
 	}
 	//moving more than 2 is never allowed.
 	else if (std::abs(deltaX) > 2)
 	{
-		std::cout << "Reason: cant move more than 2 tiles." << std::endl;
+		PRINTIF("Reason: cant move more than 2 tiles.", printIssues);
 		return false;
 	}
 	//deltaY can at max be 1.
 	if (std::abs(deltaY) > 1)
 	{
-		std::cout << "Reason: cant move sideways more than 1 tile." << std::endl;
+		PRINTIF("Reason: cant move sideways more than 1 tile.", printIssues);
 		return false;
 	}
 	//check the field.
@@ -66,13 +66,13 @@ bool Pawn::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* 
 		//can never take a piece of the same color.
 		if (otherPiece->color == color)
 		{
-			std::cout << "Reason: cant take ally piece." << std::endl;
+			PRINTIF("Reason: cant take ally piece.", printIssues);
 			return false;
 		}
 		//pawns can never take by just walking vertically.
 		if (deltaY == 0)
 		{
-			std::cout << "Reason: cant take frontal." << std::endl;
+			PRINTIF("Reason: cant take frontal.", printIssues);
 			return false;
 		}
 		//should be able to take pieces like this.
@@ -84,7 +84,7 @@ bool Pawn::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* 
 	//other field is empty
 	if (deltaY != 0)
 	{
-		std::cout << "Reason: cant walk diagonally for no reason." << std::endl;
+		PRINTIF("Reason: cant walk diagonally for no reason.", printIssues);
 		return false;
 	}
 	return true;
