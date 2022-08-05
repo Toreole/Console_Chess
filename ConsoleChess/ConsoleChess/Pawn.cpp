@@ -75,9 +75,14 @@ bool Pawn::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* 
 			std::cout << "Reason: cant take frontal." << std::endl;
 			return false;
 		}
+		//should be able to take pieces like this.
+		if (std::abs(deltaY) == 1)
+		{
+			return true;
+		}
 	}
 	//other field is empty
-	if (deltaY > 0)
+	if (deltaY != 0)
 	{
 		std::cout << "Reason: cant walk diagonally for no reason." << std::endl;
 		return false;

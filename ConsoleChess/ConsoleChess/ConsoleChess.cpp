@@ -2,7 +2,11 @@
 
 #include <iostream>
 #include "Board.h"
+#include "ChessMove.h"
+#include <vector>
 #include <regex>
+#include <chrono>
+#include <thread>
 
 using namespace ConsoleChess;
 
@@ -51,9 +55,12 @@ int main()
     board->Initialize();
 
     int player = 0;
-    //this defines valid input. 
-    std::regex rgxPattern("([a-h][1-8])\\s([a-h][1-8])");
 
+    //initialize the movehistory as empty. (0 entries)
+    std::vector<ChessMove> moveHistory(0);
+
+    //this defines valid input for moves.
+    std::regex rgxPattern("([a-h][1-8])\\s([a-h][1-8])");
 
     while (true)
     {
@@ -62,7 +69,6 @@ int main()
         //prompt input:
         std::cout << "Make your move: " << std::endl;
         //get input
-        
         std::cin >> a;
 
         //reset
@@ -70,8 +76,46 @@ int main()
         {
             board->Reset();
             player = 0;
+            //dont forget to empty the history.
+            moveHistory.clear();
             continue;
         }
+        //replay
+        if (a == "REPLAY")
+        {
+            board->Reset();
+            int moves = 0;
+            int startMove = 0;
+            //second param is the amount of previous moves.
+            std::cin >> moves;
+
+            //condition for starting at the beginning of the game.
+            if (moves > moveHistory.size() || moves <= 0)
+                startMove = 0;
+            else
+                startMove = moveHistory.size() - moves;
+            //fast forward through the moves until the point where the player(s) want to observe the replay.
+            for (int i = 0; i < startMove; ++i)
+            {
+                ChessMove m = moveHistory.at(i);
+                board->ForceMove(m.ax, m.ay, m.bx, m.by);
+            }
+            //show the interesting part.
+            std::cout << "SHOWING REPLAY:" << std::endl;
+            board->Render();
+            for (int i = startMove; i < moveHistory.size(); ++i)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+                ChessMove m = moveHistory.at(i);
+                board->ForceMove(m.ax, m.ay, m.bx, m.by);
+                board->Render();
+            }
+            std::cout << "REPLAY OVER, NEXT PLAYER: " << player << std::endl;
+            //skip the rest of the loop, restart at input.
+            continue;
+        }
+
+        //get "second part" of input
         std::cin >> b;
 
         input = a + " " + b;
@@ -91,12 +135,17 @@ int main()
         int by = intFromChar(input[3]);
         int bx = intFromChar(input[4]);
 
+        //record the move.
+        ChessMove move(ax, ay, bx, by);
+
         //std::cout << "TRIED TO MOVE FROM: " << ax << ", " << ay << " TO " << bx << ", " << by << std::endl;
 
         if (board->TryMakeMove(ax, ay, bx, by, player))
         {
             //switch between 0 and 1.
             player = 1 - player;
+            //add the move to the history.
+            moveHistory.push_back(move);
             continue;
         }
         else

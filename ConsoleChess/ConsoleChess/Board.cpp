@@ -173,3 +173,17 @@ bool Board::TryMakeMove(int ax, int ay, int bx, int by, int player)
 	}
 	return true;
 }
+
+void ConsoleChess::Board::ForceMove(int ax, int ay, int bx, int by)
+{
+	//get the two? involved pieces. piece is guaranteed to never be nullptr.
+	ChessPiece* piece = board[ax][ay];
+	ChessPiece* other = board[bx][by];
+	if (other != nullptr)
+	{
+		takenPieces.push_back(other);
+	}
+	//move it.
+	board[ax][ay] = nullptr;
+	board[bx][by] = piece;
+}

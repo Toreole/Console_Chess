@@ -32,6 +32,9 @@ namespace ConsoleChess
 		//try to make a specific move.
 		bool TryMakeMove(int ax, int ay, int bx, int by, int player);
 
+		//Force a move regardless of conditions. used for replays.
+		void ForceMove(int ax, int ay, int bx, int by);
+
 		ChessPiece* GetPieceAt(int x, int y){ return board[x][y]; }
 	};
 }
