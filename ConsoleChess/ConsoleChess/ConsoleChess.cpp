@@ -78,6 +78,7 @@ int main()
             player = 0;
             //dont forget to empty the history.
             moveHistory.clear();
+            system("CLS");
             continue;
         }
         //replay
@@ -105,6 +106,7 @@ int main()
             board->Render();
             for (int i = startMove; i < moveHistory.size(); ++i)
             {
+                system("CLS");
                 std::this_thread::sleep_for(std::chrono::milliseconds(1500));
                 ChessMove m = moveHistory.at(i);
                 board->ForceMove(m.ax, m.ay, m.bx, m.by);
@@ -121,6 +123,7 @@ int main()
         input = a + " " + b;
         if (input.size() < 5)
         {
+            system("CLS");
             std::cout << "INPUT TOO SHORT, WAS SIZE: " << input.size() << std::endl;
             continue;
         }
@@ -140,6 +143,7 @@ int main()
 
         //std::cout << "TRIED TO MOVE FROM: " << ax << ", " << ay << " TO " << bx << ", " << by << std::endl;
 
+        system("CLS");
         if (board->TryMakeMove(ax, ay, bx, by, player))
         {
             //switch between 0 and 1.
