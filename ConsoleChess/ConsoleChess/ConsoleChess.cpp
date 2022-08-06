@@ -43,6 +43,51 @@ int intFromChar(char c)
     }
 }
 
+void resetGame(Board* board, std::vector<ChessMove>* history, int* player)
+{
+    board->Reset();
+    history->clear();
+    player = 0;
+    system("CLS");
+}
+
+void showReplay(Board* board, std::vector<ChessMove>* history, int nextPlayer)
+{
+    board->Reset();
+    int moves = 0;
+    int startMove = 0;
+    //second param is the amount of previous moves.
+    std::cin >> moves;
+
+    //condition for starting at the beginning of the game.
+    if (moves > history->size() || moves <= 0)
+        startMove = 0;
+    else
+        startMove = (int)history->size() - moves;
+    //fast forward through the moves until the point where the player(s) want to observe the replay.
+    for (int i = 0; i < startMove; ++i)
+    {
+        ChessMove m = history->at(i);
+        board->ForceMove(m.ax, m.ay, m.bx, m.by);
+    }
+    //show the interesting part.
+    system("CLS");
+    std::cout << "SHOWING REPLAY:" << std::endl;
+    board->Render();
+    for (int i = startMove; i < history->size(); ++i)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+        system("CLS");
+        ChessMove m = history->at(i);
+        board->ForceMove(m.ax, m.ay, m.bx, m.by);
+        board->Render();
+    }
+    //clear one last time.
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+    system("CLS");
+    std::cout << "REPLAY OVER, NEXT PLAYER: " << nextPlayer << std::endl;
+}
+
 int main()
 {
     std::cout << "Hello World!\n";
@@ -62,6 +107,7 @@ int main()
     //this defines valid input for moves.
     std::regex rgxPattern("([a-h][1-8])\\s([a-h][1-8])");
 
+    //the core loop.
     while (true)
     {
         board->Render();
@@ -74,45 +120,13 @@ int main()
         //reset
         if (a == "RESET")
         {
-            board->Reset();
-            player = 0;
-            //dont forget to empty the history.
-            moveHistory.clear();
-            system("CLS");
+            resetGame(board.get(), &moveHistory, &player);
             continue;
         }
         //replay
         if (a == "REPLAY")
         {
-            board->Reset();
-            int moves = 0;
-            int startMove = 0;
-            //second param is the amount of previous moves.
-            std::cin >> moves;
-
-            //condition for starting at the beginning of the game.
-            if (moves > moveHistory.size() || moves <= 0)
-                startMove = 0;
-            else
-                startMove = moveHistory.size() - moves;
-            //fast forward through the moves until the point where the player(s) want to observe the replay.
-            for (int i = 0; i < startMove; ++i)
-            {
-                ChessMove m = moveHistory.at(i);
-                board->ForceMove(m.ax, m.ay, m.bx, m.by);
-            }
-            //show the interesting part.
-            std::cout << "SHOWING REPLAY:" << std::endl;
-            board->Render();
-            for (int i = startMove; i < moveHistory.size(); ++i)
-            {
-                system("CLS");
-                std::this_thread::sleep_for(std::chrono::milliseconds(1500));
-                ChessMove m = moveHistory.at(i);
-                board->ForceMove(m.ax, m.ay, m.bx, m.by);
-                board->Render();
-            }
-            std::cout << "REPLAY OVER, NEXT PLAYER: " << player << std::endl;
+            showReplay(board.get(), &moveHistory, player);
             //skip the rest of the loop, restart at input.
             continue;
         }
@@ -141,10 +155,8 @@ int main()
         //record the move.
         ChessMove move(ax, ay, bx, by);
 
-        //std::cout << "TRIED TO MOVE FROM: " << ax << ", " << ay << " TO " << bx << ", " << by << std::endl;
-
         system("CLS");
-        if (board->TryMakeMove(ax, ay, bx, by, player))
+        if (board->TryMakeMove(move, player))
         {
             //switch between 0 and 1.
             player = 1 - player;
