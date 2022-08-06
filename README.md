@@ -11,5 +11,10 @@ If a move is not allowed, it will print (in most cases) the exact reason as to w
 Castling is currently not implemented.
 TBD: the standard chess notation should be supported as input/output at some later point. (e.g. "d4", "dxe5", "O-O")
 
+### Special Commands
+"RESET": resets the game to the start.
+
+"REPLAY [integer]": Shows a replay of the game beginning from [integer] moves prior to the latest one. "REPLAY 0" or "REPLAY [negative value]" will show the entire game from the first move.
+
 ## How to contribute
 You don't. I want to get through this on my own, while having the code be available to people I want to share it with, without having to go through the hassle of manually adding them to the repository first.
