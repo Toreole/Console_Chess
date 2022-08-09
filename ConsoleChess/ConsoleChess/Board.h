@@ -8,7 +8,7 @@
 
 namespace ConsoleChess
 {
-	//! class that defines a chess board.
+	//class that defines a chess board.
 	class Board
 	{
 	private:
@@ -17,8 +17,8 @@ namespace ConsoleChess
 		HANDLE console_handle;
 		std::vector<ChessPiece*> takenPieces;
 
-		King* playerA_King;
-		King* playerB_King;
+		King* playerA_King = nullptr;
+		King* playerB_King = nullptr;
 
 	public:
 		//draw the board in the console.
@@ -31,12 +31,12 @@ namespace ConsoleChess
 		void Initialize();
 
 		//try to make a specific move.
-		bool TryMakeMove(int ax, int ay, int bx, int by, int player);
-		bool TryMakeMove(ChessMove move, int player) { return TryMakeMove(move.ax, move.ay, move.bx, move.by, player); }
+		bool TryMakeMove(ChessMove* move, int player);
 
 		//Force a move regardless of conditions. used for replays.
 		void ForceMove(int ax, int ay, int bx, int by);
 
+		//gets the pointer to the piece at the location.
 		ChessPiece* GetPieceAt(int x, int y){ return board[x][y]; }
 	};
 }

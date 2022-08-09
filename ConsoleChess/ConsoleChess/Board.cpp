@@ -1,6 +1,5 @@
 #include "Board.h"
 #include <iostream>
-#include <Windows.h>
 
 using namespace ConsoleChess;
 
@@ -107,9 +106,9 @@ void Board::Reset()
 	takenPieces.clear();
 }
 
-bool Board::TryMakeMove(int ax, int ay, int bx, int by, int player)
+bool Board::TryMakeMove(ChessMove* move, int player)
 {
-	ChessPiece* piece = board[ax][ay];
+	ChessPiece* piece = board[move->ax][move->ay];
 	//validate that a non-empty field was selected.
 	if (piece == nullptr)
 	{
@@ -124,21 +123,21 @@ bool Board::TryMakeMove(int ax, int ay, int bx, int by, int player)
 		return false;
 	}
 	//validate that the piece can move to that position
-	if (!piece->CanMoveTo(bx, by, &board))
+	if (!piece->CanMoveTo(move->bx, move->by, &board))
 	{
 		std::cout << "Selected Piece cant move to target position." << std::endl;
 		return false;
 	}
 
 	//temporarily move the pieces.
-	ChessPiece* other = board[bx][by];
+	ChessPiece* other = board[move->bx][move->by];
 	//place the moved piece in the second spot.
-	board[bx][by] = piece;
+	board[move->bx][move->by] = piece;
 	//clear the spot where it was before
-	board[ax][ay] = nullptr;
+	board[move->ax][move->ay] = nullptr;
 	//update the position of the piece itself
-	piece->row = bx;
-	piece->column = by;
+	piece->row = move->bx;
+	piece->column = move->by;
 
 	//get the current players king piece.
 	ChessPiece* currentPlayersKing = player == 1 ? playerB_King : playerA_King;
@@ -155,10 +154,10 @@ bool Board::TryMakeMove(int ax, int ay, int bx, int by, int player)
 				if (ch->CanMoveTo(currentPlayersKing->row, currentPlayersKing->column, &board, false)) //disable printing issues for the check.
 				{
 					//undo the move previously made.
-					board[bx][by] = other;
-					board[ax][ay] = piece; 
-					piece->row = ax;
-					piece->column = ay;
+					board[move->bx][move->by] = other;
+					board[move->ax][move->ay] = piece;
+					piece->row = move->ax;
+					piece->column = move->ay;
 					std::cout << "Move would cause check on yourself." << std::endl;
 					return false;
 				}
@@ -174,7 +173,7 @@ bool Board::TryMakeMove(int ax, int ay, int bx, int by, int player)
 	return true;
 }
 
-void ConsoleChess::Board::ForceMove(int ax, int ay, int bx, int by)
+void Board::ForceMove(int ax, int ay, int bx, int by)
 {
 	//get the two? involved pieces. piece is guaranteed to never be nullptr.
 	ChessPiece* piece = board[ax][ay];

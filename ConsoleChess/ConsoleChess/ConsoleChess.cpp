@@ -1,12 +1,13 @@
 // ConsoleChess.cpp : startup.
 
 #include <iostream>
-#include "Board.h"
-#include "ChessMove.h"
 #include <vector>
 #include <regex>
 #include <chrono>
 #include <thread>
+
+#include "Board.h"
+#include "ChessMove.h"
 
 using namespace ConsoleChess;
 
@@ -90,8 +91,6 @@ void showReplay(Board* board, std::vector<ChessMove>* history, int nextPlayer)
 
 int main()
 {
-    std::cout << "Hello World!\n";
-
     std::string a, b;
     std::string input;
 
@@ -156,7 +155,7 @@ int main()
         ChessMove move(ax, ay, bx, by);
 
         system("CLS");
-        if (board->TryMakeMove(move, player))
+        if (board->TryMakeMove(&move, player))
         {
             //switch between 0 and 1.
             player = 1 - player;
