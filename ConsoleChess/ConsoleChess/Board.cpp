@@ -91,9 +91,9 @@ void Board::Reset()
 			{
 				board[x][y] = nullptr;
 				//temporary piece left over from promoting a pawn.
-				if (piece->row == -1)
+				if (piece->startRow <= -1)
 				{
-					std::cout << "promoted piece found" << std::endl;
+					delete piece;
 				}
 				else
 					takenPieces.push_back(piece);
