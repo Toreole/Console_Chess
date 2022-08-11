@@ -17,7 +17,9 @@ namespace ConsoleChess
 		HANDLE console_handle;
 		std::vector<ChessPiece*> takenPieces;
 
+		//the king of player 0
 		King* playerA_King = nullptr;
+		//the king of player 1
 		King* playerB_King = nullptr;
 
 	public:
@@ -34,7 +36,7 @@ namespace ConsoleChess
 		bool TryMakeMove(ChessMove* move, int player);
 
 		//Force a move regardless of conditions. used for replays.
-		void ForceMove(int ax, int ay, int bx, int by);
+		void ForceMove(ChessMove& m, int p);
 
 		//gets the pointer to the piece at the location.
 		ChessPiece* GetPieceAt(int x, int y){ return board[x][y]; }

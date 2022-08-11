@@ -90,7 +90,13 @@ void Board::Reset()
 			if (piece != nullptr)
 			{
 				board[x][y] = nullptr;
-				takenPieces.push_back(piece);
+				//temporary piece left over from promoting a pawn.
+				if (piece->row == -1)
+				{
+					std::cout << "promoted piece found" << std::endl;
+				}
+				else
+					takenPieces.push_back(piece);
 			}
 		}
 	}
@@ -164,25 +170,111 @@ bool Board::TryMakeMove(ChessMove* move, int player)
 			}
 		}
 	}
+	//check if the moved piece is a pawn and if it stepped into a base row of the board.
+	if (piece->GetCharacter() == 'P' && move->bx == 7 || move->bx == 0)
+	{
+		std::cout << "Promote to: (Q, R, B, N)" << std::endl;
+		char target;
+		std::cin >> target;
+		ChessPiece* newPiece;
+		//select the correct piece
+		switch (std::tolower(target))
+		{
+		case 'q':
+			newPiece = new Queen();
+			break;
+		case 'r':
+			newPiece = new Rook();
+			break;
+		case 'b':
+			newPiece = new Bishop();
+			break;
+		case 'n':
+			newPiece = new Knight();
+			break;
+		default:
+			newPiece = new Queen();
+			break;
+		}
+		//negative startColumn is a sign that its not a regular piece.
+		newPiece->startColumn = -1;
+		newPiece->startRow = -1;
+		//set the position.
+		newPiece->row = move->bx;
+		newPiece->column = move->by;
+		newPiece->color = player;
+		//mark the pawn as taken, even tho its technically promoted into the new piece.
+		takenPieces.push_back(piece);
+		//now place it on the board.
+		board[move->bx][move->by] = newPiece;
+		move->promotion = std::tolower(target);
+	}
+	else
+	{
+		move->promotion = ' ';
+	}
 
 	if (other != nullptr)
 	{
 		//put the piece in the taken vector.
-		takenPieces.push_back(other);
+		if (piece->row == -1)
+			delete piece; //delete temporary pieces from promoting pawns.
+		else
+			takenPieces.push_back(other);
 	}
 	return true;
 }
 
-void Board::ForceMove(int ax, int ay, int bx, int by)
+void Board::ForceMove(ChessMove& move, int asPlayer)
 {
 	//get the two? involved pieces. piece is guaranteed to never be nullptr.
-	ChessPiece* piece = board[ax][ay];
-	ChessPiece* other = board[bx][by];
+	ChessPiece* piece = board[move.ax][move.ay];
+	ChessPiece* other = board[move.bx][move.by];
 	if (other != nullptr)
 	{
 		takenPieces.push_back(other);
 	}
 	//move it.
-	board[ax][ay] = nullptr;
-	board[bx][by] = piece;
+	board[move.ax][move.ay] = nullptr;
+	if (move.promotion != ' ') //if promotion isnt none:
+	{
+		ChessPiece* newPiece;
+		//select the correct piece
+		switch (move.promotion)
+		{
+		case 'q':
+			newPiece = new Queen();
+			break;
+		case 'r':
+			newPiece = new Rook();
+			break;
+		case 'b':
+			newPiece = new Bishop();
+			break;
+		case 'n':
+			newPiece = new Knight();
+			break;
+		default:
+			newPiece = new Queen();
+			break;
+		}
+		//negative startColumn is a sign that its not a regular piece.
+		newPiece->startColumn = -1;
+		newPiece->startRow = -1;
+		//set the position.
+		newPiece->row = move.bx;
+		newPiece->column = move.by;
+		newPiece->color = asPlayer;
+		//mark the pawn as taken, even tho its technically promoted into the new piece.
+		takenPieces.push_back(piece);
+		//now place it on the board.
+		board[move.bx][move.by] = newPiece;
+	}
+	else
+	{
+		//set the moved piece.
+		board[move.bx][move.by] = piece;
+		piece->row = move.bx;
+		piece->column = move.by;
+	}
 }

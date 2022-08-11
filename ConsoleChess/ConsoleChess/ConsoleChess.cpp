@@ -5,6 +5,7 @@
 #include <regex>
 #include <chrono>
 #include <thread>
+#include <fstream> //file streams.
 
 #include "Board.h"
 #include "ChessMove.h"
@@ -48,7 +49,7 @@ void resetGame(Board* board, std::vector<ChessMove>* history, int* player)
 {
     board->Reset();
     history->clear();
-    player = 0;
+    *player = 0;
     system("CLS");
 }
 
@@ -66,10 +67,12 @@ void showReplay(Board* board, std::vector<ChessMove>* history, int nextPlayer)
     else
         startMove = (int)history->size() - moves;
     //fast forward through the moves until the point where the player(s) want to observe the replay.
+    int tplayer = 0;
     for (int i = 0; i < startMove; ++i)
     {
         ChessMove m = history->at(i);
-        board->ForceMove(m.ax, m.ay, m.bx, m.by);
+        board->ForceMove(m, tplayer);
+        tplayer = 1 - tplayer;
     }
     //show the interesting part.
     system("CLS");
@@ -80,13 +83,52 @@ void showReplay(Board* board, std::vector<ChessMove>* history, int nextPlayer)
         std::this_thread::sleep_for(std::chrono::milliseconds(1500));
         system("CLS");
         ChessMove m = history->at(i);
-        board->ForceMove(m.ax, m.ay, m.bx, m.by);
+        board->ForceMove(m, tplayer);
+        tplayer = 1 - tplayer;
         board->Render();
     }
     //clear one last time.
     std::this_thread::sleep_for(std::chrono::milliseconds(1500));
     system("CLS");
     std::cout << "REPLAY OVER, NEXT PLAYER: " << nextPlayer << std::endl;
+}
+
+void quickSave(std::vector<ChessMove>& history)
+{
+    //out stream
+    std::ofstream fileStream("quicksave.cgn");
+    //first line is just the length of the array to expect.
+    fileStream << history.size() << std::endl;
+    for (int i = 0; i < history.size(); ++i)
+    {
+        fileStream << history.at(i).toUShort() << ' '; //all moves seperated by a space
+    }
+    fileStream.close();
+}
+
+//assumes a already reset game.
+void quickLoad(std::vector<ChessMove>& history, Board* board)
+{
+    //in stream
+    std::ifstream fileStream("quicksave.cgn");
+    if (fileStream.bad()) //this should make sure that the file exists.
+        return;
+    //first thing in the file is the amount of moves to read.
+    int length = 0;
+    fileStream >> length;
+    int tplayer = 0;
+    for (int i = 0; i < length; ++i)
+    {
+        USHORT u = 0;
+        fileStream >> u;
+        ChessMove m(u);
+        //save the move
+        history.push_back(m);
+        //move the board.
+        board->ForceMove(m, tplayer);
+        tplayer = 1 - tplayer;
+    }
+    fileStream.close();
 }
 
 int main()
@@ -127,6 +169,17 @@ int main()
         {
             showReplay(board.get(), &moveHistory, player);
             //skip the rest of the loop, restart at input.
+            continue;
+        }
+        if (a == "LOAD")
+        {
+            resetGame(board.get(), &moveHistory, &player);
+            quickLoad(moveHistory, board.get());
+            continue;
+        }
+        if (a == "SAVE")
+        {
+            quickSave(moveHistory);
             continue;
         }
 
