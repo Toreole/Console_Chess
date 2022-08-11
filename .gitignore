@@ -36,3 +36,6 @@
 
 #also ignore the binary file folders
 **/x64
+
+#ignore temporary quicksave files that may be created by the game
+*.cgn
