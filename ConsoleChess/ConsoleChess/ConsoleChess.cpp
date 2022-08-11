@@ -53,6 +53,7 @@ void resetGame(Board* board, std::vector<ChessMove>* history, int* player)
     system("CLS");
 }
 
+//shows the replay of the game up until now.
 void showReplay(Board* board, std::vector<ChessMove>* history, int nextPlayer)
 {
     board->Reset();
@@ -107,7 +108,7 @@ void quickSave(std::vector<ChessMove>& history)
 }
 
 //assumes a already reset game.
-void quickLoad(std::vector<ChessMove>& history, Board* board)
+void quickLoad(std::vector<ChessMove>& history, Board* board, int* player)
 {
     //in stream
     std::ifstream fileStream("quicksave.cgn");
@@ -128,6 +129,7 @@ void quickLoad(std::vector<ChessMove>& history, Board* board)
         board->ForceMove(m, tplayer);
         tplayer = 1 - tplayer;
     }
+    *player = tplayer;
     fileStream.close();
 }
 
@@ -158,6 +160,7 @@ int main()
         //get input
         std::cin >> a;
 
+        //TODO: proper command input.
         //reset
         if (a == "RESET")
         {
@@ -174,7 +177,7 @@ int main()
         if (a == "LOAD")
         {
             resetGame(board.get(), &moveHistory, &player);
-            quickLoad(moveHistory, board.get());
+            quickLoad(moveHistory, board.get(), &player);
             continue;
         }
         if (a == "SAVE")
