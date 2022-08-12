@@ -73,16 +73,16 @@ int intFromChar(char c)
     }
 }
 
-void resetGame(Board* board, std::vector<ChessMove>* history, int* player)
+void resetGame()
 {
     board->Reset();
-    history->clear();
-    *player = 0;
-    system("CLS");
+    moveHistory.clear();
+    player = 0;
+    CLEARSCREEN
 }
 
 //shows the replay of the game up until now.
-void showReplay(Board* board, std::vector<ChessMove>* history, int nextPlayer)
+void showReplay()
 {
     board->Reset();
     int moves = 0;
@@ -98,15 +98,15 @@ void showReplay(Board* board, std::vector<ChessMove>* history, int nextPlayer)
     moves = std::stoi(inWords[1]);
 
     //condition for starting at the beginning of the game.
-    if (moves > history->size() || moves <= 0)
+    if (moves > moveHistory.size() || moves <= 0)
         startMove = 0;
     else
-        startMove = (int)history->size() - moves;
+        startMove = (int)moveHistory.size() - moves;
     //fast forward through the moves until the point where the player(s) want to observe the replay.
     int tplayer = 0;
     for (int i = 0; i < startMove; ++i)
     {
-        ChessMove m = history->at(i);
+        ChessMove m = moveHistory.at(i);
         board->ForceMove(m, tplayer);
         tplayer = 1 - tplayer;
     }
@@ -114,11 +114,11 @@ void showReplay(Board* board, std::vector<ChessMove>* history, int nextPlayer)
     CLEARSCREEN
     std::cout << "SHOWING REPLAY:" << std::endl;
     board->Render();
-    for (int i = startMove; i < history->size(); ++i)
+    for (int i = startMove; i < moveHistory.size(); ++i)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1500));
         CLEARSCREEN
-        ChessMove m = history->at(i);
+        ChessMove m = moveHistory.at(i);
         board->ForceMove(m, tplayer);
         tplayer = 1 - tplayer;
         board->Render();
@@ -126,24 +126,24 @@ void showReplay(Board* board, std::vector<ChessMove>* history, int nextPlayer)
     //clear one last time.
     std::this_thread::sleep_for(std::chrono::milliseconds(1500));
     CLEARSCREEN
-    std::cout << "REPLAY OVER, NEXT PLAYER: " << nextPlayer << std::endl;
+    std::cout << "REPLAY OVER, NEXT PLAYER: " << player << std::endl;
 }
 
-void quickSave(std::vector<ChessMove>& history)
+void quickSave()
 {
     //out stream
     std::ofstream fileStream("quicksave.cgn");
     //first line is just the length of the array to expect.
-    fileStream << history.size() << std::endl;
-    for (int i = 0; i < history.size(); ++i)
+    fileStream << moveHistory.size() << std::endl;
+    for (int i = 0; i < moveHistory.size(); ++i)
     {
-        fileStream << history.at(i).toUShort() << ' '; //all moves seperated by a space
+        fileStream << moveHistory.at(i).toUShort() << ' '; //all moves seperated by a space
     }
     fileStream.close();
 }
 
 //assumes a already reset game.
-void quickLoad(std::vector<ChessMove>& history, Board* board, int* player)
+void quickLoad()
 {
     //in stream
     std::ifstream fileStream("quicksave.cgn");
@@ -159,12 +159,12 @@ void quickLoad(std::vector<ChessMove>& history, Board* board, int* player)
         fileStream >> u;
         ChessMove m(u);
         //save the move
-        history.push_back(m);
+        moveHistory.push_back(m);
         //move the board.
         board->ForceMove(m, tplayer);
         tplayer = 1 - tplayer;
     }
-    *player = tplayer;
+    player = tplayer;
     fileStream.close();
 }
 
@@ -200,7 +200,7 @@ int getInput(std::string& rawInput, std::array<std::string, 4>& inWords)
             //check for end of string.
             if (j == rawInput.size() - 1)
             {
-                inWords[count] = rawInput.substr(i, j - i);
+                inWords[count] = rawInput.substr(i, j+1 - i);
                 ++count;
                 i = j;
                 break;
@@ -211,25 +211,27 @@ int getInput(std::string& rawInput, std::array<std::string, 4>& inWords)
 }
 
 //all command method go here.
+//technically some of these dont need to exist, and their respective method calls can be directly inserted into the commands map, but this is more consistent.
+//also the compiler may or may not be smart enough to inline some of these? maybe?
 
 void resetCommand()
 {
-    resetGame(board.get(), &moveHistory, &player);
+    resetGame();
 }
 void replayCommand()
 {
     //needs 2 words to work. replay and one argument.
     if (wordCount > 1)
-        showReplay(board.get(), &moveHistory, player);
+        showReplay();
 }
 void loadCommand()
 {
-    resetGame(board.get(), &moveHistory, &player);
-    quickLoad(moveHistory, board.get(), &player);
+    resetGame();
+    quickLoad();
 }
 void saveCommand()
 {
-    quickSave(moveHistory);
+    quickSave();
 }
 void helpCommand()
 {
@@ -267,8 +269,6 @@ int main()
         //get the wordCount of the input, and seperate the words out into the inWords array.
         wordCount = getInput(input, inWords);
 
-        std::cout << "command: " << inWords[0] << std::endl;
-
         //apparently std::map.contains(key) is a thing in c++ 20, but it looks like thats not what im on rn.
         //check if the first word is a registered command.
         if (commands.count(inWords[0]))
@@ -278,18 +278,22 @@ int main()
             continue;
         }
 
-        //now parse through the rest of the words.
+        //if the entered line was not a command, check if it abides by the move pattern.
         std::string moveInput = inWords[0] + " " + inWords[1];
         if (moveInput.size() < 5)
         {
             std::cout << "INPUT TOO SHORT, WAS SIZE: " << moveInput.size() << std::endl;
             continue;
         }
-        //parse input.
+        //check it with the defined regex pattern.
         bool validInput = std::regex_match(moveInput, moveRgxPattern);
+        if (!validInput)
+        {
+            std::cout << "move input was not valid string. expected: [field] [field] (e.g.: [d2 d4])\n";
+            continue;
+        }
 
         //this is a little scuffed and mixed up because i did something silly with the setup of the board, so it has to be like this.
-
         int ay = intFromChar(moveInput[0]);
         int ax = intFromChar(moveInput[1]);
         //input[2] should be white space.
@@ -299,7 +303,9 @@ int main()
         //record the move.
         ChessMove move(ax, ay, bx, by);
 
-        system("CLS");
+        //clear the screen
+        CLEARSCREEN
+        //try to make the move.
         if (board->TryMakeMove(&move, player))
         {
             //switch between 0 and 1.
