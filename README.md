@@ -12,6 +12,7 @@ Castling is currently not implemented.
 TBD: the standard chess notation should be supported as input/output at some later point. (e.g. "d4", "dxe5", "O-O")
 
 ### Special Commands
+(these are case-insensitive, mixed capitalization is okay)
 "RESET": resets the game to the start.
 
 "REPLAY [integer]": Shows a replay of the game beginning from [integer] moves prior to the latest one. "REPLAY 0" or "REPLAY [negative value]" will show the entire game from the first move.
@@ -20,5 +21,8 @@ TBD: the standard chess notation should be supported as input/output at some lat
 
 "LOAD": loads the game from the quicksave.cgn file if possible.
 
+"HELP": lists the commands in the console.
+
 ## How to contribute
-You don't. I want to get through this on my own, while having the code be available to people I want to share it with, without having to go through the hassle of manually adding them to the repository first.
+For the most part, you don't.This is mostly a challenge for myself to get familiar with C++. (Also I never actually programmed a game of chess before, so there's that.). 
+Pull Requests for fixes or feedback on the code will be considered, complete features will not. The aim of this is for me to get a better understanding of C++, not to make a game of chess with lots of cool and interesting features.
