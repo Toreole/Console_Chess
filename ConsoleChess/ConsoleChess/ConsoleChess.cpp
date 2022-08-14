@@ -38,7 +38,7 @@ std::unique_ptr<Board> board(new Board());
 //this defines valid input for moves.
 std::regex moveRgxPattern("([a-h][1-8])\\s([a-h][1-8])");
 //defines numbers.
-std::regex numRgxPattern("^-*(\\d+)$");
+std::regex numRgxPattern("^-{0,1}(\\d+)$");
 
 int intFromChar(char c)
 {
