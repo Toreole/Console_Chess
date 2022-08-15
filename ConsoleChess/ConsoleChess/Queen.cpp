@@ -1,8 +1,9 @@
 #include "Queen.h"
+#include "Board.h"
 #include <cmath>
 #include <iostream>
 
-bool ConsoleChess::Queen::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* board, bool printIssues)
+bool ConsoleChess::Queen::CanMoveTo(int tx, int ty, Board* board, bool printIssues)
 {
     int dx = tx - row;
     int dy = ty - column;
@@ -20,7 +21,7 @@ bool ConsoleChess::Queen::CanMoveTo(int tx, int ty, std::array<std::array<ChessP
             return false;
 
         //the final position.
-        ChessPiece* other = board->at(tx).at(ty);
+        ChessPiece* other = board->GetPieceAt(tx, ty);
         if (other != nullptr)
         {
             PRINTIF("cant take ally", color == other->color && printIssues);
@@ -38,7 +39,7 @@ bool ConsoleChess::Queen::CanMoveTo(int tx, int ty, std::array<std::array<ChessP
             return false;
 
         //the final position.
-        ChessPiece* other = board->at(tx).at(ty);
+        ChessPiece* other = board->GetPieceAt(tx, ty);
         if (other != nullptr)
         {
             PRINTIF("cant take ally", color == other->color && printIssues);

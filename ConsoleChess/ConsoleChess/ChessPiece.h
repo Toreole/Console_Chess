@@ -3,13 +3,14 @@
 
 namespace ConsoleChess
 {
+	class Board;
 	class ChessPiece
 	{
 	protected:
 		//this is protected because the xStep and yStep are defined by the pieces themselves.
 		
 		//Checks if the piece has a line of sight to the target position (tx, ty)
-		bool HasLineOfSightTo(int tx, int ty, int xStep, int yStep, std::array<std::array<ChessPiece*, 8>, 8>* board);
+		bool HasLineOfSightTo(int tx, int ty, int xStep, int yStep, Board* board);
 
 	public:
 		int startRow = 0, startColumn = 0;
@@ -24,7 +25,7 @@ namespace ConsoleChess
 		virtual char GetCharacter() { return ' '; }
 
 		//can this piece move to the targetted position?
-		virtual bool CanMoveTo(int tr, int tc, std::array<std::array<ChessPiece*, 8>, 8>* board, bool printIssues = true) { return false; }
+		virtual bool CanMoveTo(int tr, int tc, Board* board, bool printIssues = true) { return false; }
 
 	};
 }

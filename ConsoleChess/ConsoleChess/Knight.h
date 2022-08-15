@@ -8,6 +8,6 @@ namespace ConsoleChess
         Knight(int r, int c, int col) { row = r; column = c; color = col; startRow = row; startColumn = column; }
         Knight() { row = 0; column = 0; color = 0; }
         char GetCharacter() { return 'N'; }
-        bool CanMoveTo(int tr, int tc, std::array<std::array<ChessPiece*, 8>, 8>* board, bool printIssues = true);
+        bool CanMoveTo(int tr, int tc, Board* board, bool printIssues = true);
     };
 }

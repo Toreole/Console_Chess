@@ -129,7 +129,7 @@ bool Board::TryMakeMove(ChessMove* move, int player)
 		return false;
 	}
 	//validate that the piece can move to that position
-	if (!piece->CanMoveTo(move->bx, move->by, &board))
+	if (!piece->CanMoveTo(move->bx, move->by, this))
 	{
 		std::cout << "Selected Piece cant move to target position." << std::endl;
 		return false;
@@ -157,7 +157,7 @@ bool Board::TryMakeMove(ChessMove* move, int player)
 			if (ch != nullptr && ch->color != player)
 			{
 				//can they move to the kings position aka, is the king now in check?
-				if (ch->CanMoveTo(currentPlayersKing->row, currentPlayersKing->column, &board, false)) //disable printing issues for the check.
+				if (ch->CanMoveTo(currentPlayersKing->row, currentPlayersKing->column, this, false)) //disable printing issues for the check.
 				{
 					//undo the move previously made.
 					board[move->bx][move->by] = other;

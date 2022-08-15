@@ -1,10 +1,11 @@
 #include "Pawn.h"
+#include "Board.h"
 #include <cmath>
 #include <iostream>
 
 using namespace ConsoleChess;
 
-bool Pawn::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* board, bool printIssues)
+bool Pawn::CanMoveTo(int tx, int ty, Board* board, bool printIssues)
 {
 	//vertical movement only for now.
 	//validate the direction.
@@ -29,7 +30,7 @@ bool Pawn::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* 
 	if (std::abs(deltaX) == 2)
 	{
 		int midX = row + (deltaX / 2);
-		if (board->at(midX).at(column) != nullptr)
+		if (board->GetPieceAt(midX, column) != nullptr)
 		{
 			PRINTIF("There was a piece blocking the path.", printIssues);
 			return false;
@@ -60,7 +61,7 @@ bool Pawn::CanMoveTo(int tx, int ty, std::array<std::array<ChessPiece*, 8>, 8>* 
 		return false;
 	}
 	//check the field.
-	ChessPiece* otherPiece = board->at(tx).at(ty);
+	ChessPiece* otherPiece = board->GetPieceAt(tx, ty);
 	if (otherPiece != nullptr)
 	{
 		//can never take a piece of the same color.

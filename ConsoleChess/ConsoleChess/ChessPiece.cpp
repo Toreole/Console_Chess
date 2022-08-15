@@ -1,7 +1,8 @@
 #include "ChessPiece.h"
+#include "Board.h"
 #include <iostream>
 
-bool ConsoleChess::ChessPiece::HasLineOfSightTo(int tx, int ty, int xStep, int yStep, std::array<std::array<ChessPiece*, 8>, 8>* board)
+bool ConsoleChess::ChessPiece::HasLineOfSightTo(int tx, int ty, int xStep, int yStep, Board* board)
 {
     //the x and y to check. start at the next position after step.
     int xx = row + xStep; int yy = column + yStep;
@@ -10,7 +11,7 @@ bool ConsoleChess::ChessPiece::HasLineOfSightTo(int tx, int ty, int xStep, int y
     for (; xx != tx || yy != ty; xx += xStep, yy += yStep)
     {
         //if any piece blocks the path, return false.
-        if (board->at(xx).at(yy) != nullptr)
+        if (board->GetPieceAt(xx, yy) != nullptr)
         {
             std::cout << "Piece blocking the path." << std::endl;
             return false;
