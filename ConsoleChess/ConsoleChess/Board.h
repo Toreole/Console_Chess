@@ -22,6 +22,8 @@ namespace ConsoleChess
 		//the king of player 1
 		King* playerB_King = nullptr;
 
+		std::string intToStringCoordinates(int, int);
+
 	public:
 		//draw the board in the console.
 		void Render();

@@ -43,6 +43,14 @@ void Board::Initialize()
 		board[6][i] = new Pawn(6, i, 1);
 }
 
+std::string ConsoleChess::Board::intToStringCoordinates(int x, int y)
+{
+	const std::string letters = "abcdefgh";
+	std::string str(1, letters[x]);
+	str.append(std::to_string(y));
+	return str;
+}
+
 void Board::Render()
 {
 	int color = true ? color_blue : color_green;
@@ -163,6 +171,8 @@ bool Board::TryMakeMove(ChessMove* move, int player)
 		std::cout << "Move would cause check on yourself." << std::endl;
 		return false;
 	}
+	//at this point, the move is guaranteed to be valid.
+	
 	//flag hasMoved as true after the move has been validated.
 	piece->hasMoved = true;
 
@@ -171,6 +181,7 @@ bool Board::TryMakeMove(ChessMove* move, int player)
 	{
 		std::cout << "Promote to: (Q, R, B, N)" << std::endl;
 		char target;
+		//TODO: theres gotta be a better way.
 		std::cin >> target;
 		ChessPiece* newPiece;
 		//select the correct piece
@@ -204,18 +215,24 @@ bool Board::TryMakeMove(ChessMove* move, int player)
 		//now place it on the board.
 		board[move->bx][move->by] = newPiece;
 		move->promotion = std::tolower(target);
+		//as a final act, set the algb notation of the promotion move.
+		std::string moveName = intToStringCoordinates(move->bx, move->by);
+		moveName += '=' + newPiece->GetCharacter();
+		move->algbNot = moveName;
 	}
 	else
 	{
 		move->promotion = ' ';
+		//TODO: figure out how to do the algb notation properly.
+		//important: disambiguating moves. pawn promo (handled above), captures, check, checkmate, castle (only implemented in ForceMove so far)
+		move->algbNot = "";
 	}
 
 	if (other != nullptr)
 	{
-		//put the piece in the taken vector.
 		if (piece->row == -1)
 			delete piece; //delete temporary pieces from promoting pawns.
-		else
+		else //put the piece in the taken vector.
 			takenPieces.push_back(other);
 	}
 	return true;
@@ -277,6 +294,9 @@ void Board::ForceMove(ChessMove& move, int asPlayer)
 		if (piece->GetCharacter() == 'K' && std::abs(move.by - move.ay) == 2)
 		{
 			int dir = move.by > move.ay ? 1 : -1;
+			//short or long castle in notation:
+			move.algbNot = dir > 0 ? "O-O" : "O-O-O";
+			//y coordinate of the corner.
 			int cornerY = dir > 0 ? 7 : 0;
 			//get the rook
 			ChessPiece* r = GetPieceAt(move.ax, cornerY);
