@@ -147,29 +147,19 @@ bool Board::TryMakeMove(ChessMove* move, int player)
 
 	//get the current players king piece.
 	ChessPiece* currentPlayersKing = player == 1 ? playerB_King : playerA_King;
-	//iterate through all pieces.
-	for (int x = 0; x < 8; ++x)
+	
+	//can they move to the kings position aka, is the king now in check?
+	if (IsTileAttacked(currentPlayersKing->row, currentPlayersKing->column, 1 - player)) //disable printing issues for the check.
 	{
-		for (int y = 0; y < 8; ++y)
-		{
-			ChessPiece* ch = board[x][y];
-			//only check for the opponents pieces.
-			if (ch != nullptr && ch->color != player)
-			{
-				//can they move to the kings position aka, is the king now in check?
-				if (ch->CanMoveTo(currentPlayersKing->row, currentPlayersKing->column, this, false)) //disable printing issues for the check.
-				{
-					//undo the move previously made.
-					board[move->bx][move->by] = other;
-					board[move->ax][move->ay] = piece;
-					piece->row = move->ax;
-					piece->column = move->ay;
-					std::cout << "Move would cause check on yourself." << std::endl;
-					return false;
-				}
-			}
-		}
+		//undo the move previously made.
+		board[move->bx][move->by] = other;
+		board[move->ax][move->ay] = piece;
+		piece->row = move->ax;
+		piece->column = move->ay;
+		std::cout << "Move would cause check on yourself." << std::endl;
+		return false;
 	}
+			
 	//check if the moved piece is a pawn and if it stepped into a base row of the board.
 	if (piece->GetCharacter() == 'P' && move->bx == 7 || move->bx == 0)
 	{
@@ -277,4 +267,53 @@ void Board::ForceMove(ChessMove& move, int asPlayer)
 		piece->row = move.bx;
 		piece->column = move.by;
 	}
+}
+
+bool ConsoleChess::Board::IsTileAttacked(int x, int y, int player)
+{
+	for (int xx = 0; xx < 8; ++xx)
+	{
+		for (int yy = 0; yy < 8; ++yy)
+		{
+			ChessPiece* ch = board[xx][yy];
+			//only check for the opponents pieces.
+			if (ch != nullptr && ch->color == player)
+			{
+				//the first attacker returns true.
+				if (ch->CanMoveTo(x, y, this, false)) //disable printing issues for the check.
+				{
+					return true;
+				}
+			}
+		}
+	}
+}
+
+//this could just aswell be a method of the King itself, but shouldnt make any real difference.
+bool ConsoleChess::Board::canCastle(King* king, int side)
+{
+	//can never castle when the king has been moved before.
+	if (king->hasMoved)
+		return false;
+	//get the rook in the corner.
+	int rookY = side > 0 ? 7 : 0;
+	ChessPiece* rook = board[king->row][rookY];
+	//if the rook isnt there / is there and has moved before, you cant castle.
+	if (rook == nullptr || rook->hasMoved)
+		return false;
+	//target y position of the kings move.
+	int ty = king->column + side * 2;
+	//the king may not be in check (theres probably a better way to go about this)
+	if (IsTileAttacked(king->row, king->color, 1 - king->color))
+		return false;
+	//there may not be any pieces between the king and the rook.
+	for (int yy = king->column + side; yy != rookY; yy += side)
+		if (GetPieceAt(king->row, yy) != nullptr)
+			return false;
+	//if any of the tiles the king moves on are attacked, you cannot castle.
+	for (int yy = king->column + side; yy <= ty; yy += side)
+		if (IsTileAttacked(king->row, yy, 1 - king->color))
+			return false;
+	//if all conditions are met, castling is allowed.
+	return true;
 }

@@ -22,6 +22,9 @@ namespace ConsoleChess
 		//the king of player 1
 		King* playerB_King = nullptr;
 
+		//can the specified king castle to the given side?
+		bool canCastle(King*, int);
+
 	public:
 		//draw the board in the console.
 		void Render();
@@ -40,5 +43,7 @@ namespace ConsoleChess
 
 		//gets the pointer to the piece at the location.
 		ChessPiece* GetPieceAt(int x, int y){ return board[x][y]; }
+
+		bool IsTileAttacked(int x, int y, int player);
 	};
 }

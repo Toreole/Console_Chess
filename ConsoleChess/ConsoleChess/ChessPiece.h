@@ -17,6 +17,7 @@ namespace ConsoleChess
 		int row = 0;
 		int column = 0;
 		int color = 0;
+		bool hasMoved = false;
 
 		ChessPiece(int r, int c, int col) { row = r; column = c; color = col; startRow = row; startColumn = column; }
 		ChessPiece() { row = 0; column = 0; color = 0; }
