@@ -17,7 +17,7 @@ bool ConsoleChess::Queen::CanMoveTo(int tx, int ty, Board* board, bool printIssu
         int xDir = dx > 0 ? 1 : -1;
         int yDir = dy > 0 ? 1 : -1;
 
-        if (!HasLineOfSightTo(tx, ty, xDir, yDir, board))
+        if (!HasLineOfSightTo(tx, ty, xDir, yDir, board, printIssues))
             return false;
 
         //the final position.
@@ -35,7 +35,7 @@ bool ConsoleChess::Queen::CanMoveTo(int tx, int ty, Board* board, bool printIssu
         int xDir = dx > 0 ? 1 : dx < 0 ? -1 : 0;
         int yDir = dy > 0 ? 1 : dy < 0 ? -1 : 0;
 
-        if (!HasLineOfSightTo(tx, ty, xDir, yDir, board))
+        if (!HasLineOfSightTo(tx, ty, xDir, yDir, board, printIssues))
             return false;
 
         //the final position.

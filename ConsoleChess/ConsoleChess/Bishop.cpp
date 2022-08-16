@@ -16,7 +16,7 @@ bool ConsoleChess::Bishop::CanMoveTo(int tx, int ty, Board* board, bool printIss
         int xDir = dx > 0 ? 1 : -1;
         int yDir = dy > 0 ? 1 : -1;
 
-        if (!HasLineOfSightTo(tx, ty, xDir, yDir, board))
+        if (!HasLineOfSightTo(tx, ty, xDir, yDir, board, printIssues))
             return false;
 
         //the final position.

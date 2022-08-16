@@ -96,7 +96,11 @@ void Board::Reset()
 					delete piece;
 				}
 				else
+				{
+					//reset hasMoved and insert it into the takenPieces vector.
+					piece->hasMoved = false;
 					takenPieces.push_back(piece);
+				}
 			}
 		}
 	}
@@ -159,9 +163,11 @@ bool Board::TryMakeMove(ChessMove* move, int player)
 		std::cout << "Move would cause check on yourself." << std::endl;
 		return false;
 	}
-			
+	//flag hasMoved as true after the move has been validated.
+	piece->hasMoved = true;
+
 	//check if the moved piece is a pawn and if it stepped into a base row of the board.
-	if (piece->GetCharacter() == 'P' && move->bx == 7 || move->bx == 0)
+	if (piece->GetCharacter() == 'P' && (move->bx == 7 || move->bx == 0))
 	{
 		std::cout << "Promote to: (Q, R, B, N)" << std::endl;
 		char target;
@@ -266,6 +272,22 @@ void Board::ForceMove(ChessMove& move, int asPlayer)
 		board[move.bx][move.by] = piece;
 		piece->row = move.bx;
 		piece->column = move.by;
+		piece->hasMoved = true;
+		//check if the move was the king castling.
+		if (piece->GetCharacter() == 'K' && std::abs(move.by - move.ay) == 2)
+		{
+			int dir = move.by > move.ay ? 1 : -1;
+			int cornerY = dir > 0 ? 7 : 0;
+			//get the rook
+			ChessPiece* r = GetPieceAt(move.ax, cornerY);
+			//flag it as moved
+			r->hasMoved = true;
+			//move it on the board
+			board[move.ax][cornerY] = nullptr;
+			board[move.ax][move.ay + dir] = r;
+			//update its internal position.
+			r->column = move.ay + dir;
+		}
 	}
 }
 
@@ -287,33 +309,53 @@ bool ConsoleChess::Board::IsTileAttacked(int x, int y, int player)
 			}
 		}
 	}
+	return false;
 }
 
 //this could just aswell be a method of the King itself, but shouldnt make any real difference.
-bool ConsoleChess::Board::canCastle(King* king, int side)
+bool ConsoleChess::Board::CanCastle(King* king, int side)
 {
 	//can never castle when the king has been moved before.
 	if (king->hasMoved)
+	{
+		std::cout << "King has moved before." << std::endl;
 		return false;
+	}
 	//get the rook in the corner.
 	int rookY = side > 0 ? 7 : 0;
 	ChessPiece* rook = board[king->row][rookY];
 	//if the rook isnt there / is there and has moved before, you cant castle.
 	if (rook == nullptr || rook->hasMoved)
+	{
+		std::cout << "Rook is null or moved." << std::endl;
 		return false;
+	}
 	//target y position of the kings move.
 	int ty = king->column + side * 2;
 	//the king may not be in check (theres probably a better way to go about this)
 	if (IsTileAttacked(king->row, king->color, 1 - king->color))
+	{
+		std::cout << "King is attacked." << std::endl;
 		return false;
+	}
 	//there may not be any pieces between the king and the rook.
 	for (int yy = king->column + side; yy != rookY; yy += side)
+	{
 		if (GetPieceAt(king->row, yy) != nullptr)
+		{
+			std::cout << "Blocked path. y = " << yy << std::endl;
 			return false;
+		}
+	}
 	//if any of the tiles the king moves on are attacked, you cannot castle.
 	for (int yy = king->column + side; yy <= ty; yy += side)
+	{
 		if (IsTileAttacked(king->row, yy, 1 - king->color))
+		{
+			std::cout << "King walking through attacked tile." << std::endl;
 			return false;
+		}
+	}
 	//if all conditions are met, castling is allowed.
 	return true;
 }

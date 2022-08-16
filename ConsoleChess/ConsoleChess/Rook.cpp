@@ -19,7 +19,7 @@ bool ConsoleChess::Rook::CanMoveTo(int tx, int ty, Board* board, bool printIssue
         int yDir = dy > 0 ? 1 : dy < 0 ? -1 : 0;
 
         //all positions between the start and the destination.
-        if (!HasLineOfSightTo(tx, ty, xDir, yDir, board))
+        if (!HasLineOfSightTo(tx, ty, xDir, yDir, board, printIssues))
             return false;
 
         //the final position.

@@ -10,7 +10,7 @@ namespace ConsoleChess
 		//this is protected because the xStep and yStep are defined by the pieces themselves.
 		
 		//Checks if the piece has a line of sight to the target position (tx, ty)
-		bool HasLineOfSightTo(int tx, int ty, int xStep, int yStep, Board* board);
+		bool HasLineOfSightTo(int tx, int ty, int xStep, int yStep, Board* board, bool printIssues = true);
 
 	public:
 		int startRow = 0, startColumn = 0;
