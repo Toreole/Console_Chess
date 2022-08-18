@@ -49,5 +49,11 @@ namespace ConsoleChess
 
 		//can the specified king castle to the given side?
 		bool CanCastle(King*, int);
+
+		//default constructor
+		Board();
+
+		//destructor
+		~Board();
 	};
 }

@@ -12,9 +12,6 @@ static int color_white = 7;
 
 void Board::Initialize()
 {
-	//get the handle for the console.
-	console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
-
 	//set up the board.
 	//"white" side.
 	board[0][0] = new Rook(0, 0, 0);
@@ -378,4 +375,33 @@ bool ConsoleChess::Board::CanCastle(King* king, int side)
 	}
 	//if all conditions are met, castling is allowed.
 	return true;
+}
+
+ConsoleChess::Board::Board()
+{
+	//empty arrays.
+	board = std::array<std::array<ChessPiece*, 8>, 8>();
+	//start with a size of 0
+	takenPieces = std::vector<ChessPiece*>(0);
+
+	//get the handle for the console.
+	console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+}
+
+ConsoleChess::Board::~Board()
+{
+	//delete taken pieces.
+	for (int i = 0; i < takenPieces.size(); ++i)
+		delete takenPieces.at(i);
+	//call destructor on the vector.
+	takenPieces.~vector();
+
+	//delete all pieces in play
+	for (int i = 0; i <= 7; ++i)
+		for (int j = 0; j <= 7; ++j)
+			if (board[i][j] != nullptr)
+				delete board[i][j];
+
+	//free the handle.
+	CloseHandle(console_handle);
 }
