@@ -39,3 +39,4 @@
 
 #ignore temporary quicksave files that may be created by the game
 *.cgn
+export.txt

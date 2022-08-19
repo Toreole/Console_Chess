@@ -8,8 +8,10 @@ My plan is to implement the simpler rules of chess first, then include castle/en
 ## How to play
 The way it is currently implemented, you have to input two positions; the start position (the piece you want to move), and the destination. (e.g. "d2 d4", which moves the pawn on d2 to d4.)
 If a move is not allowed, it will print (in most cases) the exact reason as to why that move is illegal.
-Castling is currently not implemented.
-TBD: the standard chess notation should be supported as input/output at some later point. (e.g. "d4", "dxe5", "O-O")
+Castling is currently done by moving the King by 2 tiles (moving the piece to the tile it would castle to, so e.g. "e1 g1").
+En-passant is WIP.
+Pawn promotion is in. Simply move a pawn to the opposite end of the board, and then type in the letter of the piece you want to promote to. (Defaults to Queen if no suitable input was given.)
+
 
 ### Special Commands
 (these are case-insensitive, mixed capitalization is okay)
@@ -23,6 +25,9 @@ TBD: the standard chess notation should be supported as input/output at some lat
 
 "HELP": lists the commands in the console.
 
+"EXPORT": exports the move history of this game into an export.txt file, listing the moves according to the algebraic notation standard (see wikipedia for more info).
+
 ## How to contribute
-For the most part, you don't.This is mostly a challenge for myself to get familiar with C++. (Also I never actually programmed a game of chess before, so there's that.). 
-Pull Requests for fixes or feedback on the code will be considered, complete features will not. The aim of this is for me to get a better understanding of C++, not to make a game of chess with lots of cool and interesting features.
+For the most part, you don't. This is mostly a challenge for myself to get familiar with C++. (Also I never actually programmed a game of chess before, so there's that.). 
+Pull Requests for fixes or feedback on the code will be considered, complete features will not. The aim of this is for me to get a better understanding of C++, not to make a game of chess with lots of cool and interesting features (although I am sorta doing that too).
+
