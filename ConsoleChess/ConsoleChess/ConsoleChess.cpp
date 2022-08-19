@@ -107,7 +107,7 @@ void showReplay()
     for (int i = 0; i < startMove; ++i)
     {
         ChessMove m = moveHistory.at(i);
-        board->ForceMove(m, tplayer);
+        board->ForceMove(&m, tplayer);
         tplayer = 1 - tplayer;
     }
     //show the interesting part.
@@ -119,7 +119,7 @@ void showReplay()
         std::this_thread::sleep_for(std::chrono::milliseconds(1500));
         CLEARSCREEN
         ChessMove m = moveHistory.at(i);
-        board->ForceMove(m, tplayer);
+        board->ForceMove(&m, tplayer);
         tplayer = 1 - tplayer;
         board->Render();
     }
@@ -161,7 +161,7 @@ void quickLoad()
         //save the move
         moveHistory.push_back(m);
         //move the board.
-        board->ForceMove(m, tplayer);
+        board->ForceMove(&m, tplayer);
         tplayer = 1 - tplayer;
     }
     player = tplayer;
@@ -217,7 +217,7 @@ void exportMoves()
     for (int i = 0; i < moveHistory.size(); ++i)
     {
         fileStream << moveHistory.at(i).algbNot << ' ';
-        if (i % 2 == 0)
+        if (i % 2 == 1)
             fileStream << '\n';
     }
     fileStream.close();

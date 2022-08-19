@@ -43,8 +43,8 @@ void Board::Initialize()
 std::string ConsoleChess::Board::intToStringCoordinates(int x, int y)
 {
 	const std::string letters = "abcdefgh";
-	std::string str(1, letters[x]);
-	str.append(std::to_string(y+1)); //coordinates are 0-7, but the numbers on the side range from 1-8.
+	std::string str(1, letters[y]); //note: y axis is the letter, x is the number.
+	str.append(std::to_string(x+1)); //coordinates are 0-7, but the numbers on the side range from 1-8.
 	return str;
 }
 
@@ -95,6 +95,55 @@ bool ConsoleChess::Board::moveCausesCheckOnSelf(int x, int y, ChessPiece* moved)
 	board[moved->row][moved->column] = moved;
 	//return the attacked value
 	return inCheck;
+}
+
+std::string ConsoleChess::Board::getDisambiguatedMoveNotation(int ax, int ay, int bx, int by, ChessPiece* piece, ChessPiece* other, int ambiguousCount, bool takingPiece)
+{
+	//get the pieces character already.
+	char pieceC = piece->GetCharacter();
+
+	//important: disambiguating moves. pawn promo (handled above), captures, check, checkmate, castle (only implemented in ForceMove so far)
+	//bools to check the uniqueness of the X and Y coords of the piece.
+	bool uniqueX = true;
+	bool uniqueY = true;
+	for (int i = 0; i < ambiguousCount; ++i)
+	{
+		ChessPiece* ambp = testBuffer[i];
+		//check both conditions. dunno about the if its worth using &= instead of this, since & and && should have the same result for bools.
+		uniqueX = uniqueX && ambp->row != ax;
+		uniqueY = uniqueY && ambp->column != ay;
+	}
+	//temporary string.
+	std::string notation = "";
+	//castle is a special case that is treated differently from the others.
+	int dy = by - ay;
+	if (pieceC == 'K' && std::abs(dy) == 2)
+	{
+		notation = dy > 0 ? "O-O" : "O-O-O";
+	}
+	else
+	{
+		//include the Piece "name" only when its not a Pawn.
+		if (pieceC != 'P')
+			notation += pieceC;
+		if (!uniqueY || (pieceC == 'P' && takingPiece)) //disambiguate on Y
+		{
+			const std::string letters = "abcdefgh";
+			notation += letters[ay];
+		}
+		if (!uniqueX) //disambiguate on X
+			notation += std::to_string(ax);
+		if (takingPiece) //mark moves where a piece is taken with x.
+			notation += 'x';
+		//add the coords of the destination of the move.
+		notation += intToStringCoordinates(bx, by);
+		//add a + if the opponents king was checked.
+		ChessPiece* otherKing = KING_OF(1 - piece->color);
+		if (IsTileAttacked(otherKing->row, otherKing->column, piece->color))
+			notation += '+';
+
+		return notation;
+	}
 }
 
 void Board::Render()
@@ -264,44 +313,8 @@ bool Board::TryMakeMove(ChessMove* move, int player)
 	else
 	{
 		move->promotion = ' ';
-		
-		//get the pieces character already.
-		char pieceC = piece->GetCharacter();
-
-		//important: disambiguating moves. pawn promo (handled above), captures, check, checkmate, castle (only implemented in ForceMove so far)
-		//bools to check the uniqueness of the X and Y coords of the piece.
-		bool uniqueX = true;
-		bool uniqueY = true;
-		for (int i = 0; i < ambiguousMoveCount; ++i)
-		{
-			ChessPiece* ambp = testBuffer[i];
-			//check both conditions. dunno about the if its worth using &= instead of this, since & and && should have the same result for bools.
-			uniqueX = uniqueX && ambp->row != move->ax;
-			uniqueY = uniqueY && ambp->column != move->ay;
-		}
-		//temporary string.
-		std::string notation = "";
-
-		//include the Piece "name" only when its not a Pawn.
-		if (pieceC != 'P')
-			notation += pieceC;
-		if (!uniqueY || pieceC == 'P') //disambiguate on Y
-		{
-			const std::string letters = "abcdefgh";
-			notation += letters[move->ax];
-		}
-		if (!uniqueX) //disambiguate on X
-			notation += std::to_string(move->ay);
-		if (takingPiece) //mark moves where a piece is taken with x.
-			notation += 'x';
-		//add the coords of the destination of the move.
-		notation += intToStringCoordinates(move->bx, move->by);
-		//add a + if the opponents king was checked.
-		ChessPiece* otherKing = KING_OF(1 - piece->color);
-		if (IsTileAttacked(otherKing->row, otherKing->column, piece->color))
-			notation += '+';
 		//assign the notation.
-		move->algbNot = notation;
+		move->algbNot = getDisambiguatedMoveNotation(move->ax, move->ay, move->bx, move->by, piece, other, ambiguousMoveCount, takingPiece);
 	}
 
 	if (takingPiece)
@@ -314,22 +327,25 @@ bool Board::TryMakeMove(ChessMove* move, int player)
 	return true;
 }
 
-void Board::ForceMove(ChessMove& move, int asPlayer)
+void Board::ForceMove(ChessMove* move, int asPlayer)
 {
 	//get the two? involved pieces. piece is guaranteed to never be nullptr.
-	ChessPiece* piece = board[move.ax][move.ay];
-	ChessPiece* other = board[move.bx][move.by];
+	ChessPiece* piece = board[move->ax][move->ay];
+	ChessPiece* other = board[move->bx][move->by];
+	//finding ambiguous moves needs to be done before pieces are moved.
+	int ambiguousMoveCount = findOtherPiecesToMoveTo(move->bx, move->by, piece);
+	//properly take pieces.
 	if (other != nullptr)
 	{
 		takenPieces.push_back(other);
 	}
 	//move it.
-	board[move.ax][move.ay] = nullptr;
-	if (move.promotion != ' ') //if promotion isnt none:
+	board[move->ax][move->ay] = nullptr;
+	if (move->promotion != ' ') //if promotion isnt none:
 	{
 		ChessPiece* newPiece;
 		//select the correct piece
-		switch (move.promotion)
+		switch (move->promotion)
 		{
 		case 'q':
 			newPiece = new Queen();
@@ -351,38 +367,49 @@ void Board::ForceMove(ChessMove& move, int asPlayer)
 		newPiece->startColumn = -1;
 		newPiece->startRow = -1;
 		//set the position.
-		newPiece->row = move.bx;
-		newPiece->column = move.by;
+		newPiece->row = move->bx;
+		newPiece->column = move->by;
 		newPiece->color = asPlayer;
 		//mark the pawn as taken, even tho its technically promoted into the new piece.
 		takenPieces.push_back(piece);
 		//now place it on the board.
-		board[move.bx][move.by] = newPiece;
+		board[move->bx][move->by] = newPiece;
+		//as a final act, set the algb notation of the promotion move.
+		std::string moveName = intToStringCoordinates(move->bx, move->by);
+		moveName += '=' + newPiece->GetCharacter();
+		move->algbNot = moveName;
 	}
 	else
 	{
 		//set the moved piece.
-		board[move.bx][move.by] = piece;
-		piece->row = move.bx;
-		piece->column = move.by;
+		board[move->bx][move->by] = piece;
+		piece->row = move->bx;
+		piece->column = move->by;
 		piece->hasMoved = true;
 		//check if the move was the king castling.
-		if (piece->GetCharacter() == 'K' && std::abs(move.by - move.ay) == 2)
+		if (piece->GetCharacter() == 'K' && std::abs(move->by - move->ay) == 2)
 		{
-			int dir = move.by > move.ay ? 1 : -1;
+			int dir = move->by > move->ay ? 1 : -1;
 			//short or long castle in notation:
-			move.algbNot = dir > 0 ? "O-O" : "O-O-O";
+			move->algbNot = dir > 0 ? "O-O" : "O-O-O";
 			//y coordinate of the corner.
 			int cornerY = dir > 0 ? 7 : 0;
 			//get the rook
-			ChessPiece* r = GetPieceAt(move.ax, cornerY);
+			ChessPiece* r = GetPieceAt(move->ax, cornerY);
 			//flag it as moved
 			r->hasMoved = true;
 			//move it on the board
-			board[move.ax][cornerY] = nullptr;
-			board[move.ax][move.ay + dir] = r;
+			board[move->ax][cornerY] = nullptr;
+			board[move->ax][move->ay + dir] = r;
 			//update its internal position.
-			r->column = move.ay + dir;
+			r->column = move->ay + dir;
+		}
+		else
+		{
+			//although this has the notation for castling built-in, 
+			//the above code already checks for castling since the move requires extra effort outside of moving just the king.
+			//therefore this is in an else
+			move->algbNot = getDisambiguatedMoveNotation(move->ax, move->ay, move->bx, move->by, piece, other, ambiguousMoveCount, other != nullptr);
 		}
 	}
 }
