@@ -16,6 +16,7 @@ namespace ConsoleChess
 		std::array<std::array<ChessPiece*, 8>, 8> board;
 		HANDLE console_handle;
 		std::vector<ChessPiece*> takenPieces;
+		std::array<ChessPiece*, 10> testBuffer; //outside of custom games there is no way to get 10 pieces of the same type anyway.
 
 		//the king of player 0
 		King* playerA_King = nullptr;
@@ -23,6 +24,11 @@ namespace ConsoleChess
 		King* playerB_King = nullptr;
 
 		std::string intToStringCoordinates(int, int);
+
+		int findOtherPiecesToMoveTo(int x, int y, ChessPiece* original);
+		bool moveCausesCheckOnSelf(int x, int y, ChessPiece* moved);
+
+#define KING_OF(color) color == 1 ? playerB_King : playerA_King;  
 
 	public:
 		//draw the board in the console.

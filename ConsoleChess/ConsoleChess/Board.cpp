@@ -44,8 +44,57 @@ std::string ConsoleChess::Board::intToStringCoordinates(int x, int y)
 {
 	const std::string letters = "abcdefgh";
 	std::string str(1, letters[x]);
-	str.append(std::to_string(y));
+	str.append(std::to_string(y+1)); //coordinates are 0-7, but the numbers on the side range from 1-8.
 	return str;
+}
+
+//stores ChessPiece*s that can move to x/y and are the same type as ignore in the testBuffer.
+//returns the amount of found pieces.
+int ConsoleChess::Board::findOtherPiecesToMoveTo(int x, int y, ChessPiece* original)
+{
+	int count = 0;
+	//same as always, iterate the whole board for now. too lazy to make collections for each player.
+	for (int xx = 0; xx <= 7; ++xx)
+	{
+		for (int yy = 0; yy <= 7; ++yy)
+		{
+			//get the piece at the position.
+			ChessPiece* other = board[xx][yy];
+			//check if its not null, if its not the ignored piece, if its the same colour, the same type, and if it can move to the location.
+			//spread over multiple lines (kinda yucky) but better than one really really long line.
+			if (other != nullptr
+				&& other != original
+				&& other->color == original->color
+				&& other->GetCharacter() == original->GetCharacter()
+				&& other->CanMoveTo(x, y, this, false)
+				&& !moveCausesCheckOnSelf(x, y, other))
+			{
+				//if this piece can move to that tile without causing check on the players own king, add it.
+				testBuffer[count] = other;
+				++count;
+			}
+		}
+	}
+	return count;
+}
+
+bool ConsoleChess::Board::moveCausesCheckOnSelf(int x, int y, ChessPiece* moved)
+{
+	//keep a reference to the potential other piece
+	ChessPiece* other = board[x][y];
+	//replace it.
+	board[x][y] = moved;
+	//clear the moved tile.
+	board[moved->row][moved->column] = nullptr;
+	//get the king of the player.
+	ChessPiece* king = KING_OF(moved->color);
+	//check if the kings tile is attacked
+	bool inCheck = IsTileAttacked(king->row, king->column, 1 - moved->color);
+	//undo the temporary move made before.
+	board[x][y] = other;
+	board[moved->row][moved->column] = moved;
+	//return the attacked value
+	return inCheck;
 }
 
 void Board::Render()
@@ -143,35 +192,30 @@ bool Board::TryMakeMove(ChessMove* move, int player)
 		std::cout << "Selected Piece cant move to target position." << std::endl;
 		return false;
 	}
-
-	//temporarily move the pieces.
-	ChessPiece* other = board[move->bx][move->by];
-	//place the moved piece in the second spot.
-	board[move->bx][move->by] = piece;
-	//clear the spot where it was before
-	board[move->ax][move->ay] = nullptr;
-	//update the position of the piece itself
-	piece->row = move->bx;
-	piece->column = move->by;
-
-	//get the current players king piece.
-	ChessPiece* currentPlayersKing = player == 1 ? playerB_King : playerA_King;
-	
-	//can they move to the kings position aka, is the king now in check?
-	if (IsTileAttacked(currentPlayersKing->row, currentPlayersKing->column, 1 - player)) //disable printing issues for the check.
+	//the move is invalid if it causes the player to be / stay in check.
+	if (moveCausesCheckOnSelf(move->bx, move->by, piece))
 	{
-		//undo the move previously made.
-		board[move->bx][move->by] = other;
-		board[move->ax][move->ay] = piece;
-		piece->row = move->ax;
-		piece->column = move->ay;
 		std::cout << "Move would cause check on yourself." << std::endl;
 		return false;
 	}
 	//at this point, the move is guaranteed to be valid.
 	
+	//find out how many ambiguous moves there are for notation purposes.
+	int ambiguousMoveCount = findOtherPiecesToMoveTo(move->bx, move->by, piece);
+
 	//flag hasMoved as true after the move has been validated.
 	piece->hasMoved = true;
+
+	ChessPiece* other = board[move->bx][move->by];
+	//was a piece taken in this move?
+	bool takingPiece = other != nullptr;
+
+	//update the position of the piece itself //the "previous" position is move->ax/ay
+	piece->row = move->bx;
+	piece->column = move->by;
+	//update the board to reflect these changes.
+	board[move->bx][move->by] = piece;
+	board[move->ax][move->ay] = nullptr;
 
 	//check if the moved piece is a pawn and if it stepped into a base row of the board.
 	if (piece->GetCharacter() == 'P' && (move->bx == 7 || move->bx == 0))
@@ -220,12 +264,47 @@ bool Board::TryMakeMove(ChessMove* move, int player)
 	else
 	{
 		move->promotion = ' ';
-		//TODO: figure out how to do the algb notation properly.
+		
+		//get the pieces character already.
+		char pieceC = piece->GetCharacter();
+
 		//important: disambiguating moves. pawn promo (handled above), captures, check, checkmate, castle (only implemented in ForceMove so far)
-		move->algbNot = "";
+		//bools to check the uniqueness of the X and Y coords of the piece.
+		bool uniqueX = true;
+		bool uniqueY = true;
+		for (int i = 0; i < ambiguousMoveCount; ++i)
+		{
+			ChessPiece* ambp = testBuffer[i];
+			//check both conditions. dunno about the if its worth using &= instead of this, since & and && should have the same result for bools.
+			uniqueX = uniqueX && ambp->row != move->ax;
+			uniqueY = uniqueY && ambp->column != move->ay;
+		}
+		//temporary string.
+		std::string notation = "";
+
+		//include the Piece "name" only when its not a Pawn.
+		if (pieceC != 'P')
+			notation += pieceC;
+		if (!uniqueY || pieceC == 'P') //disambiguate on Y
+		{
+			const std::string letters = "abcdefgh";
+			notation += letters[move->ax];
+		}
+		if (!uniqueX) //disambiguate on X
+			notation += std::to_string(move->ay);
+		if (takingPiece) //mark moves where a piece is taken with x.
+			notation += 'x';
+		//add the coords of the destination of the move.
+		notation += intToStringCoordinates(move->bx, move->by);
+		//add a + if the opponents king was checked.
+		ChessPiece* otherKing = KING_OF(1 - piece->color);
+		if (IsTileAttacked(otherKing->row, otherKing->column, piece->color))
+			notation += '+';
+		//assign the notation.
+		move->algbNot = notation;
 	}
 
-	if (other != nullptr)
+	if (takingPiece)
 	{
 		if (piece->row == -1)
 			delete piece; //delete temporary pieces from promoting pawns.

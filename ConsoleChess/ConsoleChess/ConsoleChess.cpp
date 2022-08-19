@@ -210,6 +210,19 @@ int getInput(std::string& rawInput, std::array<std::string, 4>& inWords)
     return count;
 }
 
+//exports the move history in algebraic notation form.
+void exportMoves()
+{
+    std::ofstream fileStream("export.txt");
+    for (int i = 0; i < moveHistory.size(); ++i)
+    {
+        fileStream << moveHistory.at(i).algbNot << ' ';
+        if (i % 2 == 0)
+            fileStream << '\n';
+    }
+    fileStream.close();
+}
+
 //all command method go here.
 //technically some of these dont need to exist, and their respective method calls can be directly inserted into the commands map, but this is more consistent.
 //also the compiler may or may not be smart enough to inline some of these? maybe?
@@ -239,7 +252,12 @@ void helpCommand()
         << "reset: resets the game to the very start.\n"
         << "replay [n]: shows a replay from [n] moves ago. n<=0 will show the entire game.\n"
         << "save: creates a quicksave.cgn with all moves in more or less human readable form.\n"
-        << "load: loads the gamestate from the quicksave.\n";
+        << "load: loads the gamestate from the quicksave.\n"
+        << "export: exports the game in algebraic notation, in file export.txt \n";
+}
+void exportCommand()
+{
+    exportMoves();
 }
 
 //main yep yep main
@@ -254,6 +272,7 @@ int main()
     commands["load"] = &loadCommand;
     commands["save"] = &saveCommand;
     commands["help"] = &helpCommand;
+    commands["export"] = &exportCommand;
 
     //the core loop.
     while (true)
