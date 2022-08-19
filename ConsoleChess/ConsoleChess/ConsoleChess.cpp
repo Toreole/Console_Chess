@@ -158,10 +158,10 @@ void quickLoad()
         USHORT u = 0;
         fileStream >> u;
         ChessMove m(u);
+        //move the board. //has to happen BEFORE push_back because it only adds a copy
+        board->ForceMove(&m, tplayer);
         //save the move
         moveHistory.push_back(m);
-        //move the board.
-        board->ForceMove(&m, tplayer);
         tplayer = 1 - tplayer;
     }
     player = tplayer;

@@ -141,9 +141,8 @@ std::string ConsoleChess::Board::getDisambiguatedMoveNotation(int ax, int ay, in
 		ChessPiece* otherKing = KING_OF(1 - piece->color);
 		if (IsTileAttacked(otherKing->row, otherKing->column, piece->color))
 			notation += '+';
-
-		return notation;
 	}
+	return notation;
 }
 
 void Board::Render()
