@@ -84,5 +84,23 @@ namespace ChessCodeTests
 			bool match = std::regex_match(bdesc, rgx);
 			Assert::IsTrue(match);
 		}
+
+		TEST_METHOD(MoveOppositePlayerPiece)
+		{
+			ConsoleChess::Board* board = new ConsoleChess::Board();
+			board->Initialize(); //default board.
+			ConsoleChess::ChessMove m(1, 0, 2, 0); //the pawn on a2 to a3
+			Assert::IsFalse(board->TryMakeMove(&m, 1));
+			delete board;
+		}
+
+		TEST_METHOD(MoveOwnPiece)
+		{
+			ConsoleChess::Board* board = new ConsoleChess::Board();
+			board->Initialize(); //default board.
+			ConsoleChess::ChessMove m(1, 0, 2, 0); //the pawn on a2 to a3 //y = 0 => a. coords are 0-7.
+			Assert::IsTrue(board->TryMakeMove(&m, 0));
+			delete board;
+		}
 	};
 }
