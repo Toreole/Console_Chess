@@ -1,6 +1,11 @@
 #include "Board.h"
 #include <iostream>
 
+#ifndef STD_REGEX
+#define STD_REGEX
+#include <regex>
+#endif
+
 using namespace ConsoleChess;
 
 static int color_blue = 11;
@@ -38,6 +43,59 @@ void Board::Initialize()
 
 	for (int i = 0; i <= 7; ++i)
 		board[6][i] = new Pawn(6, i, 1);
+}
+
+void ConsoleChess::Board::Initialize(std::string& bdesc)
+{
+	const std::regex bdrgx("^([pkqrbnx][01]\\s){63}[pkqrbnx][01]$"); //matches 64 counts of [piece][colour] with whitespace inbetween, but not at the end.
+	const std::regex skiprgx("[^pxbqrnk]");
+
+	if (std::regex_match(bdesc, bdrgx))//validate bdesc
+	{
+		int x = 0, y = 0;
+		int player = 0;
+
+		for (int i = 0; i < bdesc.length(); ++i)
+		{
+			if (std::regex_match(bdesc.substr(i, 1), skiprgx))
+				continue;
+
+			player = bdesc.at(i + 1) == '1' ? 1 : 0;
+
+			switch (bdesc.at(i))
+			{
+			case 'x':
+				//do nothing
+				break;
+			case 'p':
+				board[x][y] = new Pawn(x, y, player);
+				break;
+			case 'q':
+				board[x][y] = new Queen(x, y, player);
+				break;
+			case 'k':
+				board[x][y] = new King(x, y, player);
+				break;
+			case 'r':
+				board[x][y] = new Rook(x, y, player);
+				break;
+			case 'n':
+				board[x][y] = new Knight(x, y, player);
+				break;
+			case 'b':
+				board[x][y] = new Bishop(x, y, player);
+				break;
+			}
+			//move along the field.
+			++y;
+			if (y == 9)
+			{
+				y = 0;
+				++x;
+			}
+		}
+	}
+
 }
 
 std::string ConsoleChess::Board::intToStringCoordinates(int x, int y)

@@ -56,6 +56,11 @@ namespace ConsoleChess
 		//initialize the board.
 		void Initialize();
 
+		//initializes the board according to a description.
+		//fomat: [piece][colour] [piece][colour] ... 64 entries expected.
+		//x = no piece, P = pawn, Q = Queen, K = King, B = Bishop, N = Knight, R = Rook | colour is either 0 or 1
+		void Initialize(std::string& boardDescription);
+
 		//try to make a specific move.
 		bool TryMakeMove(ChessMove* move, int player);
 

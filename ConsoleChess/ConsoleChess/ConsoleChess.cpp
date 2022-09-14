@@ -2,7 +2,10 @@
 
 #include <iostream>
 #include <vector>
+#ifndef STD_REGEX
+#define STD_REGEX
 #include <regex>
+#endif
 #include <chrono>
 #include <thread>
 #include <fstream> //file streams.
@@ -40,7 +43,7 @@ std::regex moveRgxPattern("([a-h][1-8])\\s([a-h][1-8])");
 //defines numbers.
 std::regex numRgxPattern("^-{0,1}(\\d+)$");
 
-int intFromChar(char c)
+static int intFromChar(char c)
 {
     switch (c)
     {
