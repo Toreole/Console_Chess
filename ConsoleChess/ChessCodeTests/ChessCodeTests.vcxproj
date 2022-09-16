@@ -101,7 +101,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;$(SolutionDir)ConsoleChess\x64\Debug\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Bishop.obj;Board.obj;ChessPiece.obj;King.obj;Knight.obj;Pawn.obj;Queen.obj;Rook.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Bishop.obj;Board.obj;ChessPiece.obj;King.obj;Knight.obj;Pawn.obj;Queen.obj;Rook.obj;ChessGame.obj;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
