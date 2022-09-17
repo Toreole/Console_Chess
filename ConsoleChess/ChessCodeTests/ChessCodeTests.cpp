@@ -1,21 +1,29 @@
 #include "pch.h"
 #include "CppUnitTest.h"
 #include "../ConsoleChess/Board.h"
+#include "../ConsoleChess/ChessGame.h"
 
 #ifndef STD_REGEX
 #define STD_REGEX
 #include <regex>
 #endif
 
-
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace ChessCodeTests
 {
+	//these need to be here for the time being, as the ECallback type
+	//can only store non-member, non-lambda functions.
+	int testInt;
+	void changeTestInt()
+	{
+		testInt = 1;
+	}
+
 	TEST_CLASS(ChessCodeTests)
 	{
 	public:
-		
+
 		TEST_METHOD(InitBoardNoArgs)
 		{
 			ConsoleChess::Board *board = new ConsoleChess::Board();
@@ -101,6 +109,33 @@ namespace ChessCodeTests
 			ConsoleChess::ChessMove m(1, 0, 2, 0); //the pawn on a2 to a3 //y = 0 => a. coords are 0-7.
 			Assert::IsTrue(board->TryMakeMove(&m, 0));
 			delete board;
+		}
+
+		TEST_METHOD(BasicCommand)
+		{
+			testInt = 0;
+			ConsoleChess::ChessGame* game = new ConsoleChess::ChessGame();
+			
+			game->RegisterCommand("test", 0, &changeTestInt);
+			std::string input = "test";
+			game->ProcessRawInput(input);
+			Assert::AreEqual(1, testInt);
+
+			delete game;
+		}
+
+		TEST_METHOD(UnregisterCommand)
+		{
+			testInt = 0;
+			ConsoleChess::ChessGame* game = new ConsoleChess::ChessGame();
+
+			game->RegisterCommand("test", 0, &changeTestInt);
+			game->UnregisterCommand("test");
+			std::string input = "test";
+			game->ProcessRawInput(input);
+			Assert::AreEqual(0, testInt);
+
+			delete game;
 		}
 	};
 }
