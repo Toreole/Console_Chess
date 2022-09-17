@@ -79,29 +79,40 @@ namespace ConsoleChess
 	public:
 		ChessGame();
 
-		//
+		//takes an unprocessed line of input and processes commands from it.
 		void ProcessRawInput(std::string& input);
 
+		//resets the game.
 		void Reset();
 
+		//shows a replay of the game. requires a second word (number) as input
 		void ShowReplay();
 
+		//quickly saves the current boardstate
 		void QuickSave();
 
+		//loads the boardstate from the quicksave if present.
 		void QuickLoad();
 
+		//exports the current game in standard algebraic notation
 		void Export();
 
+		//pass through to board.Render().
 		void Render();
 
+		//registers a command with a name, the amount of (additional) words, and the callback
 		void RegisterCommand(std::string name, int requiredWords, ECallback callback);
 
+		//removes the command from the map
 		void UnregisterCommand(std::string);
 
+		//id of the player whose turn it is
 		int GetCurrentPlayer() { return player; }
 
+		//is the game being played?
 		bool IsPlaying() { return isPlayed; }
 
+		//stop the game
 		void Stop() { isPlayed = false; }
 	};
 

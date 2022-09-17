@@ -3,6 +3,8 @@
 #include <thread>
 #include <chrono>
 
+constexpr auto QUICKSAVE_FILE = "quicksave.cgn";
+
 //static helpers come first. 
 
 static int ConsoleChess::intFromChar(char c)
@@ -206,7 +208,7 @@ void ConsoleChess::ChessGame::ShowReplay()
 void ConsoleChess::ChessGame::QuickSave()
 {
     //out stream
-    std::ofstream fileStream("quicksave.cgn");
+    std::ofstream fileStream(QUICKSAVE_FILE);
     //first line is just the length of the array to expect.
     fileStream << moveHistory.size() << std::endl;
     for (int i = 0; i < moveHistory.size(); ++i)
@@ -219,7 +221,7 @@ void ConsoleChess::ChessGame::QuickSave()
 void ConsoleChess::ChessGame::QuickLoad()
 {
     //in stream
-    std::ifstream fileStream("quicksave.cgn");
+    std::ifstream fileStream(QUICKSAVE_FILE);
     if (fileStream.bad()) //this should make sure that the file exists.
         return;
     //first thing in the file is the amount of moves to read.
