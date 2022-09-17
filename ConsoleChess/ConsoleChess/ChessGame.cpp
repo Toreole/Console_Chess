@@ -92,6 +92,9 @@ ConsoleChess::ChessGame::ChessGame()
 
 void ConsoleChess::ChessGame::ProcessRawInput(std::string& input)
 {
+    //parses the input into seperate words.
+    wordCount = getInput<4>(input, inWords);
+
     //clear the screen preemptively
     CLEARSCREEN
 
@@ -121,7 +124,7 @@ void ConsoleChess::ChessGame::ProcessRawInput(std::string& input)
         return;
     }
 
-    //this is a little scuffed and mixed up because i did something silly with the setup of the board, so it has to be like this.
+    //letters represent the Y axis, but are first, so its mixed.
     int ay = ConsoleChess::intFromChar(moveInput[0]);
     int ax = ConsoleChess::intFromChar(moveInput[1]);
     //input[2] should be white space.
