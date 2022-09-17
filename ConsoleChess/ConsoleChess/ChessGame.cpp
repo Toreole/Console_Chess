@@ -84,11 +84,66 @@ static int ConsoleChess::getInput(std::string& rawInput, std::array<std::string,
 
 ConsoleChess::ChessGame::ChessGame()
 {
+    //make_unique internally runs the ctor for Board.
+    board = std::make_unique<ConsoleChess::Board>();
+    //initialize the board with the default layout.
     board->Initialize();
 }
 
 void ConsoleChess::ChessGame::ProcessRawInput(std::string& input)
 {
+    //clear the screen preemptively
+    CLEARSCREEN
+
+    //apparently std::map.contains(key) is a thing in c++ 20, but it looks like thats not what im on rn.
+    //check if the first word is a registered command.
+    if (commands.count(inWords[0]) != 0)
+    {
+        Command* c = &commands[inWords[0]];
+        //run the command then continue.
+        if(wordCount > c->requiredArguments)
+            c->callback();
+        return;
+    }
+
+    //if the entered line was not a command, check if it abides by the move pattern.
+    std::string moveInput = inWords[0] + " " + inWords[1];
+    if (moveInput.size() < 5)
+    {
+        std::cout << "INPUT TOO SHORT, WAS SIZE: " << moveInput.size() << std::endl;
+        return;
+    }
+    //check it with the defined regex pattern.
+    bool validInput = std::regex_match(moveInput, moveRgxPattern);
+    if (!validInput)
+    {
+        std::cout << "move input was not valid string. expected: [field] [field] (e.g.: [d2 d4])\n";
+        return;
+    }
+
+    //this is a little scuffed and mixed up because i did something silly with the setup of the board, so it has to be like this.
+    int ay = ConsoleChess::intFromChar(moveInput[0]);
+    int ax = ConsoleChess::intFromChar(moveInput[1]);
+    //input[2] should be white space.
+    int by = ConsoleChess::intFromChar(moveInput[3]);
+    int bx = ConsoleChess::intFromChar(moveInput[4]);
+
+    //record the move.
+    ChessMove move(ax, ay, bx, by);
+
+    //try to make the move.
+    if (board->TryMakeMove(&move, player))
+    {
+        //switch between 0 and 1.
+        player = 1 - player;
+        //add the move to the history.
+        moveHistory.push_back(move);
+        return;
+    }
+    else
+    {
+        std::cout << "INVALID MOVE" << std::endl;
+    }
 }
 
 void ConsoleChess::ChessGame::Reset()
@@ -107,7 +162,6 @@ void ConsoleChess::ChessGame::ShowReplay()
     //if the first argument isnt a valid number, stop.
     if (!std::regex_match(inWords[1], numRgxPattern))
     {
-        CLEARSCREEN
             std::cout << "invalid input. Expected syntax: replay [integer]";
         return;
     }
@@ -194,4 +248,22 @@ void ConsoleChess::ChessGame::Export()
             fileStream << '\n';
     }
     fileStream.close();
+}
+
+void ConsoleChess::ChessGame::Render()
+{
+    board->Render();
+}
+
+void ConsoleChess::ChessGame::RegisterCommand(std::string name, int requiredWords, ECallback callback)
+{
+    commands[name] = Command(requiredWords, callback);
+}
+
+void ConsoleChess::ChessGame::UnregisterCommand(std::string name)
+{
+    //command needs to exist to unregister.
+    if (commands.count(name) == 0)
+        return;
+    commands.erase(name);
 }

@@ -544,6 +544,8 @@ ConsoleChess::Board::Board()
 {
 	//empty arrays.
 	board = std::array<std::array<ChessPiece*, 8>, 8>();
+	for (int i = 0; i < 8; ++i)
+		board[i] = std::array<ChessPiece*, 8>();
 	//start with a size of 0
 	takenPieces = std::vector<ChessPiece*>(0);
 
