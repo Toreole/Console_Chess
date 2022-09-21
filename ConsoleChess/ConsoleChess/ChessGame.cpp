@@ -41,7 +41,7 @@ static int ConsoleChess::intFromChar(char c)
 }
 
 template<UINT N>
-static int ConsoleChess::getInput(std::string& rawInput, std::array<std::string, N>& inWords)
+int ConsoleChess::getInput(std::string& rawInput, std::array<std::string, N>& inWords)
 {
     //the count of words found.
     int count = 0;

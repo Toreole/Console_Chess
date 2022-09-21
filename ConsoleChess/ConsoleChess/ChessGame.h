@@ -44,6 +44,9 @@ namespace ConsoleChess
 	template<UINT N>
 	int getInput(std::string& rawInput, std::array<std::string, N>& inWords);
 
+	//this is utility for the test project since i am unaware of why the template getInput<N> is unavailable.
+	static int getInput4(std::string& rawInput, std::array<std::string, 4>& inWords) { return getInput<4>(rawInput, inWords); }
+
 	class ChessGame //this basically contains most of the code that was previously inside ConsoleChess.cpp (well the headers for the code but yeah)
 	{
 	private:

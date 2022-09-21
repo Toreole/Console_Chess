@@ -3,6 +3,8 @@
 #include "../ConsoleChess/Board.h"
 #include "../ConsoleChess/ChessGame.h"
 
+#include <string>
+
 #ifndef STD_REGEX
 #define STD_REGEX
 #include <regex>
@@ -136,6 +138,43 @@ namespace ChessCodeTests
 			Assert::AreEqual(0, testInt);
 
 			delete game;
+		}
+
+		TEST_METHOD(InputParseMultipleWords)
+		{
+			std::string input = "one two three four";
+			std::array<std::string, 4> words;
+
+			int cw = ConsoleChess::getInput4(input, words);
+
+			Assert::AreEqual(4, cw);
+			Assert::AreEqual(std::string("one"), words[0]);
+			Assert::AreEqual(std::string("two"), words[1]);
+			Assert::AreEqual(std::string("three"), words[2]);
+			Assert::AreEqual(std::string("four"), words[3]);
+		}
+
+		TEST_METHOD(InputParseManyWords)
+		{
+			std::string input = "one two three four five six seven";
+			std::array<std::string, 4> words;
+			int cw = ConsoleChess::getInput4(input, words);
+
+			Assert::AreEqual(4, cw);
+			Assert::AreEqual(std::string("one"), words[0]);
+			Assert::AreEqual(std::string("two"), words[1]);
+			Assert::AreEqual(std::string("three"), words[2]);
+			Assert::AreEqual(std::string("four"), words[3]);
+		}
+
+		TEST_METHOD(InputParseOneWordWithTrailingWhiteSpace)
+		{
+			std::string input = "one  ";
+			std::array<std::string, 4> words;
+			int cw = ConsoleChess::getInput4(input, words);
+
+			Assert::AreEqual(1, cw);
+			Assert::AreEqual(std::string("one"), words[0]);
 		}
 	};
 }
